@@ -1,19 +1,17 @@
 public class SuperBlock {
 
-    // number of blocks in file system
-    public int size;
-    // number of iNodes in file system
-    public int iSize;
-    // first block of the free list
-    public int freeList;
+    public int startOfINode;
+    public int startOfFree;
+    public int numberOfInodes;
 
+    public SuperBlock() {
+        startOfINode = 3;
+        startOfFree = 400_000;
+        numberOfInodes = 1;
+    }
 
     @Override
     public String toString() {
-        return "SuperBlock{" +
-                "size=" + size +
-                ", iSize=" + iSize +
-                ", freeList=" + freeList +
-                '}';
+        return "Superblock: " + startOfINode + " " + startOfFree + " " + numberOfInodes;
     }
 }
