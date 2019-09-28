@@ -2,13 +2,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InodeBlock {
-    private List<Inode> inodeList;
-    private int size; // number of i nodes
+    public static List<Inode> inodeList = new ArrayList<>();
+    public static int size; // number of i nodes
 
 
     // region Constructors
     public InodeBlock() {
-        inodeList = new ArrayList<>();
         size = 0;
     }
     // endregion
@@ -33,7 +32,7 @@ public class InodeBlock {
     // endregion
 
     // region Methods
-    public void addNodeToList(Inode inode) {
+    public static void addNodeToList(Inode inode) {
         inodeList.add(inode);
         size++;
     }

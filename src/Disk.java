@@ -13,13 +13,13 @@ public class Disk {
     public static final int NUMBER_OF_BLOCKS = 4_000_000;
 
     // number of reads and writes to the file system
-    private int readCount = 0;
-    private int writeCount = 0;
+    private static int readCount = 0;
+    private static int writeCount = 0;
 
 
     // file that represents the file system
     private File fileName;
-    private RandomAccessFile disk;
+    private static RandomAccessFile disk;
 
     public static Logger LOGGER = Logger.getLogger("Logger");
 
@@ -43,7 +43,7 @@ public class Disk {
         }
     }
 
-    private void seek(int blockNumber) throws IOException {
+    private static void seek(int blockNumber) throws IOException {
         if (blockNumber < 0 || blockNumber > NUMBER_OF_BLOCKS) {
             throw new RuntimeException("Block number: " + blockNumber + " is out of range");
         }
@@ -52,10 +52,10 @@ public class Disk {
 
     // region Read methods
 
-    public void read(int blockNumber, byte [] outputBuffer) {
-        if (outputBuffer.length != BLOCK_SIZE) {
-            throw new RuntimeException("Read: bad buffer length: " + outputBuffer.length);
-        }
+    public static void read(int blockNumber, byte [] outputBuffer) {
+//        if (outputBuffer.length != BLOCK_SIZE) {
+//            throw new RuntimeException("Read: bad buffer length: " + outputBuffer.length);
+//        }
         try {
             seek(blockNumber);
             disk.read(outputBuffer);
@@ -65,7 +65,7 @@ public class Disk {
         readCount++;
     }
 
-    public void read(int blocknum, SuperBlock block) {
+    public static void read(int blocknum, SuperBlock block) {
         try {
             seek(blocknum);
             block.startOfINode = disk.readInt();
@@ -86,7 +86,7 @@ public class Disk {
         readCount++;
     }
 
-    public void read(int blockNumber, InodeBlock block) {
+    public static void read(int blockNumber, InodeBlock block) {
         try {
             seek(blockNumber);
             block.setSize(disk.readInt());
@@ -101,7 +101,7 @@ public class Disk {
         }
     }
 
-    public void read(int blockNumber, Block block) {
+    public static void read(int blockNumber, Block block) {
         try {
             seek(blockNumber);
             block.setNext(disk.readInt());
@@ -116,7 +116,7 @@ public class Disk {
 
     // region Write methods
 
-    public void write(int blocknum, SuperBlock block) {
+    public static void write(int blocknum, SuperBlock block) {
         try {
             seek(blocknum);
             disk.writeInt(block.startOfINode);
@@ -130,7 +130,7 @@ public class Disk {
         writeCount++;
     }
 
-    public void write(int blockNumber, InodeBlock block) {
+    public static void write(int blockNumber, InodeBlock block) {
         try {
             seek(blockNumber);
             disk.writeInt(block.getSize());
@@ -146,7 +146,7 @@ public class Disk {
         }
     }
     
-    public void write(int blockNumber, byte [] block) {
+    public static void write(int blockNumber, byte [] block) {
         try {
             seek(blockNumber);
             disk.write(block);

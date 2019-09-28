@@ -1,8 +1,8 @@
 public class SuperBlock {
 
-    public int startOfINode;
-    public int startOfFree;
-    public int numberOfInodes;
+    public static int startOfINode;
+    public static int startOfFree;
+    public static int numberOfInodes;
 
     public SuperBlock() {
         startOfINode = 3;
