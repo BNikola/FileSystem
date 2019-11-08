@@ -1,4 +1,7 @@
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -111,24 +114,30 @@ public class Disk {
         }
     }
 
+    public Directory readDirectoryFromINode(Inode inode) {
+        // TODO: 8.11.2019. implement this
+        return new Directory("root");
+    }
+
     // endregion
 
 
     // region Write methods
 
-//    public static void write(int blocknum, SuperBlock block) {
-//        try {
-//            seek(blocknum);
-//            disk.writeInt(block.startOfINode);
-//            disk.writeInt(block.startOfFree);
-//            disk.writeInt(block.numberOfInodes);
-//        }
-//        catch (IOException e) {
-//            System.err.println(e);
-//            System.exit(1);
-//        }
-//        writeCount++;
-//    }
+    public static void write(int blocknum, SuperBlock block) {
+        try {
+            seek(blocknum);
+            disk.writeInt(block.getStartOfFree());
+            disk.writeInt(block.getStartOfINode());
+            disk.writeInt(block.getStartOfRoot());
+            disk.writeInt(block.getNumberOfInodes());
+        }
+        catch (IOException e) {
+            System.err.println(e);
+            System.exit(1);
+        }
+        writeCount++;
+    }
 
     public static void write(int blockNumber, InodeBlock block) {
         try {
@@ -157,10 +166,60 @@ public class Disk {
 
     // endregion
 
+    public void formatDisc() {
+        for (int i = 0; i < 4_000_000; i++) {
+            try {
+                disk.writeInt(i+1);
+                disk.writeBoolean(false);
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, e.toString(), e);
+            }
+        }
+
+        // write the super block
+        SuperBlock superBlock = new SuperBlock();
+        this.write(0, superBlock);
+
+        // write the inode for the root dir
+        // create root directory
+        Inode rootINode = new Inode();
+        Directory rootDir = new Directory("root");
+        rootDir.addFile("root", 0);
+
+
+
+    }
+
     // TODO: 24.9.2019. Add read of the iNode - and add iNode
     //    // TODO: 24.9.2019. Add write methods
 
     public static void main(String[] args) {
         Disk d = new Disk();
+//        d.formatDisc();
+//
+//        System.out.println("Citanje sa diska");
+//        System.out.println("-------------------------");
+//
+//        Block b = new Block();
+//        for (int i = 0; i < 100; i++) {
+//            Disk.read(i, b);
+//            System.out.println(b);
+//
+//        }
+        Inode rootINode = new Inode();
+        Directory rootDir = new Directory("root");
+        rootDir.addFile("root", 0);
+        System.out.println(rootDir);
+
+        try {
+
+            byte[] bytes = rootDir.convertToBytes();
+            System.out.println(bytes);
+            Directory ddd = rootDir.convertFromBytes(bytes);
+            System.out.println(ddd);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 }

@@ -1,15 +1,16 @@
 import java.util.LinkedList;
-import java.util.List;
 
 public class Inode {
     private int flags;
     private int fileSize;
-    // TODO: 8.11.2019. add size and time modified
     private LinkedList<Extent> pointers;
+    private long timestamp;
+
 
     // region Constructor
     public Inode() {
         pointers = new LinkedList<>();
+        timestamp = System.currentTimeMillis();
     }
 
     public Inode(int flags, int fileSize, LinkedList<Extent> pointers) {
@@ -54,11 +55,33 @@ public class Inode {
         this.pointers = pointers;
     }
 
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    // TODO: 8.11.2019. consider removing this
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
     // endregion
 
 
+    public void createRootDir() {
+
+    }
+
     public void addPointer(Extent extent) {
         pointers.add(extent);
+    }
+
+    // returns size in bytes
+    public double size() {
+        double size = 0;
+        for (Extent e : pointers) {
+            size += e.getSize();
+        }
+        return size / 5;
     }
 
     @Override

@@ -22,3 +22,5 @@
 - **Integer** is 16 bytes
 - first inode is the inode of the root dir
 - first currentDir is the root dir
+- InodeBlock is in the memmory, on shutdown must write it manually in header section (list is dynamics)
+- **Format a date:** System.out.println(new SimpleDateFormat("HH:mm:ss").format(a));
