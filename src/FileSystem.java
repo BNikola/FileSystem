@@ -5,6 +5,15 @@ import java.util.Arrays;
 
 public class FileSystem {
 
+    public Directory currentDirectory;
+    public Inode currentInode;
+
+    public FileSystem() {
+        currentDirectory = new Directory("root");
+        // add root inode read here
+        // currentInode = read first inode
+    }
+
     public boolean mkdir(String startDirName, String newDirName) {
         try {
         } catch (Exception e) {

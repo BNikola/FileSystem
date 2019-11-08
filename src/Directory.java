@@ -1,15 +1,10 @@
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class Directory {
     public static HashMap<String, Integer> fileNames = new HashMap<>();
-    public List<Integer> fileNamesLengths = new ArrayList<>();
+    public List<Integer> fileNamesLengths = new ArrayList<>();  // when reading, read how many files are in hash map
     public int filesLength;
     public String name;
     public int nameLength;

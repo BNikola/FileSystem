@@ -1,23 +1,18 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.ObjIntConsumer;
 
 public class SuperBlock implements Serializable {
 
     private static int startOfINode;
     private static int startOfFree;
+    private static int startOfRoot;
     private static int numberOfInodes;
-
-    public Directory root;
-    public List<Inode> inodes = new ArrayList<>();
 
     // this is singleton
     private SuperBlock() {
-        startOfINode = 3;
+        startOfINode = 4;
         startOfFree = 400_000;
+        startOfRoot = 400_000;  // just the first time the disk is opened (disc is empty)
         numberOfInodes = 1;
-        root = new Directory("/");
 
     }
 
@@ -35,6 +30,10 @@ public class SuperBlock implements Serializable {
 
     public static void setStartOfFree(int startOfFree) {
         SuperBlock.startOfFree = startOfFree;
+    }
+
+    public static int getStartOfRoot() {
+        return startOfRoot;
     }
 
     public static int getNumberOfInodes() {
