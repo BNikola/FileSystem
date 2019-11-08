@@ -16,3 +16,6 @@
     - write SuperBlock
     - write InodeBlock
     - write buffer
+    
+## Notes
+- **char** is two bytes (when writing names of files and dirs)

@@ -1,23 +1,20 @@
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Inode {
     private int flags;
     private int fileSize;
-    private int numberOfExtents;
-    LinkedList<Extent> pointers;
+    // TODO: 8.11.2019. add size and time modified
+    private LinkedList<Extent> pointers;
 
     // region Constructor
     public Inode() {
-        numberOfExtents = 0;
         pointers = new LinkedList<>();
     }
 
-    public Inode(int flags, int fileSize, int numberOfExtents, LinkedList<Extent> pointers) {
+    public Inode(int flags, int fileSize, LinkedList<Extent> pointers) {
         this.flags = flags;
         this.fileSize = fileSize;
-        this.numberOfExtents = numberOfExtents;
         this.pointers = pointers;
     }
 
@@ -43,14 +40,13 @@ public class Inode {
     }
 
     public int getNumberOfExtents() {
-        return numberOfExtents;
+        return pointers.size();
     }
 
     public void setNumberOfExtents(int numberOfExtents) {
-        this.numberOfExtents = numberOfExtents;
     }
 
-    public List<Extent> getPointers() {
+    public LinkedList<Extent> getPointers() {
         return pointers;
     }
 
@@ -63,7 +59,6 @@ public class Inode {
 
     public void addPointer(Extent extent) {
         pointers.add(extent);
-        numberOfExtents++;
     }
 
     @Override
@@ -71,7 +66,7 @@ public class Inode {
         return "Inode{" +
                 "flags=" + flags +
 //                ", fileSize=" + fileSize +
-                "numberOfExtents=" + numberOfExtents +
+                "numberOfExtents=" + pointers.size() +
                 ", pointer=" + pointers +
                 '}';
     }

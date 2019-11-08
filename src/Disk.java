@@ -65,26 +65,26 @@ public class Disk {
         readCount++;
     }
 
-    public static void read(int blocknum, SuperBlock block) {
-        try {
-            seek(blocknum);
-            block.startOfINode = disk.readInt();
-            block.startOfFree = disk.readInt();
-            block.numberOfInodes = disk.readInt();
-        }
-        catch (EOFException e) {
-            if (blocknum != 0) {
-                System.err.println(e);
-                System.exit(1);
-            }
-            block.startOfINode = block.startOfFree = 0;
-        }
-        catch (IOException e) {
-            System.err.println(e);
-            System.exit(1);
-        }
-        readCount++;
-    }
+//    public static void read(int blocknum, SuperBlock block) {
+//        try {
+//            seek(blocknum);
+//            block.startOfINode = disk.readInt();
+//            block.startOfFree = disk.readInt();
+//            block.numberOfInodes = disk.readInt();
+//        }
+//        catch (EOFException e) {
+//            if (blocknum != 0) {
+//                System.err.println(e);
+//                System.exit(1);
+//            }
+//            block.startOfINode = block.startOfFree = 0;
+//        }
+//        catch (IOException e) {
+//            System.err.println(e);
+//            System.exit(1);
+//        }
+//        readCount++;
+//    }
 
     public static void read(int blockNumber, InodeBlock block) {
         try {
@@ -93,7 +93,7 @@ public class Disk {
             for (int i = 0; i < block.getInodeList().size(); i++) {
                 block.getInodeList().get(i).setNumberOfExtents(disk.readInt());
                 for (int j = 0; j < block.getInodeList().get(i).getNumberOfExtents(); j++) {
-                    block.getInodeList().get(i).pointers.set(j, new Extent(disk.readInt(), disk.readShort()));
+                    block.getInodeList().get(i).getPointers().set(j, new Extent(disk.readInt(), disk.readShort()));
                 }
             }
         } catch (IOException e) {
@@ -116,19 +116,19 @@ public class Disk {
 
     // region Write methods
 
-    public static void write(int blocknum, SuperBlock block) {
-        try {
-            seek(blocknum);
-            disk.writeInt(block.startOfINode);
-            disk.writeInt(block.startOfFree);
-            disk.writeInt(block.numberOfInodes);
-        }
-        catch (IOException e) {
-            System.err.println(e);
-            System.exit(1);
-        }
-        writeCount++;
-    }
+//    public static void write(int blocknum, SuperBlock block) {
+//        try {
+//            seek(blocknum);
+//            disk.writeInt(block.startOfINode);
+//            disk.writeInt(block.startOfFree);
+//            disk.writeInt(block.numberOfInodes);
+//        }
+//        catch (IOException e) {
+//            System.err.println(e);
+//            System.exit(1);
+//        }
+//        writeCount++;
+//    }
 
     public static void write(int blockNumber, InodeBlock block) {
         try {
@@ -137,8 +137,8 @@ public class Disk {
             for (int i = 0; i < block.getInodeList().size(); i++) {
                 disk.writeInt(block.getInodeList().get(i).getNumberOfExtents());
                 for (int j = 0; j < block.getInodeList().get(i).getNumberOfExtents(); j++) {
-                    disk.writeInt(block.getInodeList().get(i).pointers.get(j).getStartIndex());
-                    disk.writeShort(block.getInodeList().get(i).pointers.get(j).getSize());
+                    disk.writeInt(block.getInodeList().get(i).getPointers().get(j).getStartIndex());
+                    disk.writeShort(block.getInodeList().get(i).getPointers().get(j).getSize());
                 }
             }
         } catch (IOException e) {
