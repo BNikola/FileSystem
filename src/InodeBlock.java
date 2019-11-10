@@ -1,7 +1,8 @@
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InodeBlock {
+public class InodeBlock implements Serializable {
     public static List<Inode> inodeList = new ArrayList<>();
     public static int size; // number of i nodes
 
@@ -39,7 +40,20 @@ public class InodeBlock {
     // endregion
 
 
+    public byte[] convertToBytes() throws IOException {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+             ObjectOutputStream ous = new ObjectOutputStream(bos)) {
+            ous.writeObject(this);
+            return bos.toByteArray();
+        }
+    }
 
+    public InodeBlock convertFromBytes(byte[] bytes) throws IOException, ClassNotFoundException {
+        try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+             ObjectInputStream ois = new ObjectInputStream(bis)) {
+            return (InodeBlock) ois.readObject();
+        }
+    }
 
     @Override
     public String toString() {

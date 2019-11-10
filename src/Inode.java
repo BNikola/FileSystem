@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.util.LinkedList;
 
-public class Inode {
+public class Inode implements Serializable {
     private int flags;
     private int fileSize;
     private LinkedList<Extent> pointers;

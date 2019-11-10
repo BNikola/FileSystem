@@ -2,8 +2,8 @@ import java.io.*;
 
 public class SuperBlock implements Serializable {
 
-    private int startOfINode;
     private int startOfFree;
+    private int startOfINode;
     private int startOfRoot;
     private int numberOfInodes;
 
@@ -15,20 +15,20 @@ public class SuperBlock implements Serializable {
 
     }
 
-    public int getStartOfINode() {
-        return startOfINode;
-    }
-
-    public void setStartOfINode(int startOfINode) {
-        this.startOfINode = startOfINode;
-    }
-
     public int getStartOfFree() {
         return startOfFree;
     }
 
     public void setStartOfFree(int startOfFree) {
         this.startOfFree = startOfFree;
+    }
+
+    public int getStartOfINode() {
+        return startOfINode;
+    }
+
+    public void setStartOfINode(int startOfINode) {
+        this.startOfINode = startOfINode;
     }
 
     public int getStartOfRoot() {

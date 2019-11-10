@@ -178,7 +178,7 @@ public class Disk {
 
         // write the super block
         SuperBlock superBlock = new SuperBlock();
-        this.write(0, superBlock);
+        write(0, superBlock);
 
         // write the inode for the root dir
         // create root directory
@@ -206,18 +206,80 @@ public class Disk {
 //            System.out.println(b);
 //
 //        }
-        Inode rootINode = new Inode();
+        Inode rootINode1 = new Inode();
+        Inode rootINode2 = new Inode();
         Directory rootDir = new Directory("root");
         rootDir.addFile("root", 0);
         System.out.println(rootDir);
+        rootINode1.addPointer(new Extent(20, (short) 5));
+        rootINode1.addPointer(new Extent(27, (short) 5));
+        rootINode2.addPointer(new Extent(55, (short) 2));
+        InodeBlock inb = new InodeBlock();
+        InodeBlock.addNodeToList(rootINode1);
+        InodeBlock.addNodeToList(rootINode2);
+        System.out.println(inb);
+
+        // TODO: 9.11.2019. change read and write methods using this, add serialization to everything
+        // TODO: 9.11.2019. check if the data after stays ok
+//        try {
+//            byte[] bytes = inb.convertToBytes();
+//            FileOutputStream out = new FileOutputStream("inode_block_test.txt");
+////            out.write();
+//            out.write(bytes);
+//            out.write(bytes);
+//            out.close();
+//
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        rootINode1.addPointer(new Extent(435, (short) 23));
+
+//        try (RandomAccessFile raf = new RandomAccessFile("inod_block_test.txt", "rw")) {
+//            raf.seek(0);
+//
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+        try (FileInputStream in = new FileInputStream("inode_block_test.txt")) {
+            byte[] bytes = in.readAllBytes();
+            System.out.println("prvo citanje");
+            System.out.println("----------------------");
+            InodeBlock inb2 = new InodeBlock();
+            inb2.convertFromBytes(bytes);
+            System.out.println(new String(bytes));
+
+            System.out.println(inb2);
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
+        }
 
         try {
 
-            byte[] bytes = rootDir.convertToBytes();
-            System.out.println(bytes);
-            Directory ddd = rootDir.convertFromBytes(bytes);
-            System.out.println(ddd);
-        } catch (IOException | ClassNotFoundException e) {
+            FileOutputStream out = new FileOutputStream("inode_block_test.txt", true);
+//            out.write();
+            out.write("\novo je test\n".getBytes());
+            out.close();
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try (FileInputStream in = new FileInputStream("inode_block_test.txt")) {
+            byte[] bytes = in.readAllBytes();
+            System.out.println(new String(bytes));
+            System.out.println("Drugo citanje");
+            System.out.println("----------------------");
+            InodeBlock inb2 = new InodeBlock();
+            inb2.convertFromBytes(bytes);
+
+            System.out.println(inb2);
+        } catch (ClassNotFoundException | IOException e) {
             e.printStackTrace();
         }
 

@@ -16,13 +16,6 @@ public class Directory implements Serializable {
         this.filesLength = fileNames.size();
     }
 
-    public void createRootDir(Integer iNode) {
-        this.name = "root";
-        this.nameLength = "root".length();
-        this.filesLength = fileNames.size();
-
-    }
-
     public boolean addFile(String newFileName, Integer iNode) {
         if (fileNames.containsKey(newFileName) && fileNames.values().contains(iNode)) {
             return false;
