@@ -68,10 +68,6 @@ public class Inode implements Serializable {
     // endregion
 
 
-    public void createRootDir() {
-
-    }
-
     public void addPointer(Extent extent) {
         pointers.add(extent);
     }
@@ -85,12 +81,50 @@ public class Inode implements Serializable {
         return size / 5;
     }
 
+    public void bytesToExtents(byte[] data, int startOfFree) {
+        int written = 0;
+        int sizeOfData = data.length;
+        int sizeOfDataInBlocks = sizeOfData/5 + 1;
+        int extentStartIndex = startOfFree;
+        while (written < sizeOfDataInBlocks) {
+            int extentStart = extentStartIndex;
+            Block old = new Block();
+            short extentSize = 0;
+            for (int i = extentStart; written < sizeOfDataInBlocks;) {
+                Disk.read(i, old);
+                if (i == old.getNext() - 1 && written < sizeOfDataInBlocks) {
+                    System.out.println("sljedeci je");
+                    i++;
+                    written++;
+                    extentSize++;
+                    if (written == sizeOfDataInBlocks) {
+                        System.out.println("velicina dosegnuta");
+                        Extent extent = new Extent(extentStart, extentSize);
+                        this.addPointer(extent);
+                        System.out.println(extent);
+                    }
+                } else {
+                    written++;
+                    extentSize++;
+                    i = old.getNext();
+                    System.out.println("nije sljedeci");
+                    Extent extent = new Extent(extentStart, extentSize);
+                    this.addPointer(extent);
+                    extentStart = i;
+                    extentSize = 0;
+                    System.out.println(extent);
+                }
+            }
+        }
+
+    }
+
     @Override
     public String toString() {
         return "Inode{" +
                 "flags=" + flags +
 //                ", fileSize=" + fileSize +
-                "numberOfExtents=" + pointers.size() +
+                ", numberOfExtents=" + pointers.size() +
                 ", pointer=" + pointers +
                 '}';
     }
