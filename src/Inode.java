@@ -1,3 +1,5 @@
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -138,6 +140,24 @@ public class Inode implements Serializable {
         }
     }
 
+    public void readExents() {
+        int read = 0;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        for (Extent e : pointers) {
+            byte[] buffer = new byte[e.getSize() * 5];
+            read += size();
+            Disk.read(e.getStartIndex(), buffer);
+            try {
+                baos.write(buffer);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        // TODO: 17.11.2019. return byte array and maybe add exception to method
+        System.out.println("======");
+        System.out.println(new String(baos.toByteArray()) + "|");
+        System.out.println("======");
+    }
 
     @Override
     public String toString() {

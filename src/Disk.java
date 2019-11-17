@@ -228,10 +228,21 @@ public class Disk {
         Disk d = new Disk();
         Inode inode = new Inode();
         Inode inode2 = new Inode();
-        byte [] bytes = "Tetstiranje ovoga je zabavno".getBytes();
+//        byte [] bytes = "Tetstiranje ovoga je zabavno".getBytes();
+        byte [] bytes = null;
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream("README.md"))) {
+            bytes = bis.readAllBytes();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         Block b = new Block();
         for (int i = 399_990; i < 400_020; i++) {
+            Disk.write(i, new Block(i+1, false));
+            Disk.read(i, b);
+            System.out.println(i + " -> " + b);
+        }
+        for (int i = 300; i < 400; i++) {
             Disk.write(i, new Block(i+1, false));
             Disk.read(i, b);
             System.out.println(i + " -> " + b);
@@ -245,22 +256,24 @@ public class Disk {
         Disk.read(400_000, b);
         System.out.println(b);
 
-        inode.bytesToExtents(bytes, 400_000);
-        inode.writeExtents(bytes);
-//        Disk.write(400_001, new Block(300, false));
+//        inode.bytesToExtents(bytes, 400_000);
+//        inode.writeExtents(bytes);
+//        inode.readExents();
+        Disk.write(400_001, new Block(300, false));
 
         Disk.read(400_000, b);
         System.out.println(b);
 
-        System.out.println(inode);
-//        inode2.bytesToExtents(bytes, 400_000);
+        System.out.println(inode2);
+        inode2.bytesToExtents(bytes, 400_000);
 //        inode2.writeExtents(bytes);
-//        System.out.println("-------------");
-//        System.out.println(inode);
-//
-//        Disk.read(400_000, b);
-//        System.out.println(b);
-//        Disk.write(400_001, new Block(400_002, false));
+//        inode2.readExents();
+        System.out.println("-------------");
+        System.out.println(inode2);
+
+        Disk.read(400_000, b);
+        System.out.println(b);
+        Disk.write(400_001, new Block(400_002, false));
 
         System.out.println("=======");
         for (int i = 399_990; i < 400_020; i++) {
@@ -270,6 +283,9 @@ public class Disk {
         }
         System.out.println(bytes.length);
         System.out.println("e ovoga je".getBytes().length);
-
+        System.out.println("--------");
+        System.out.println("# This is a file system representation (iNode)".getBytes().length);
+        System.out.println("a file system representation (iNode)    ".getBytes().length);
+        System.out.println("a file system representation (iNode)".getBytes().length);
     }
 }
