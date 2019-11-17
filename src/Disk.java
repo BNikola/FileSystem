@@ -227,9 +227,15 @@ public class Disk {
 
         Disk d = new Disk();
         Inode inode = new Inode();
+        Inode inode2 = new Inode();
         byte [] bytes = "Tetstiranje ovoga je zabavno".getBytes();
 
         Block b = new Block();
+        for (int i = 399_990; i < 400_020; i++) {
+            Disk.write(i, new Block(i+1, false));
+            Disk.read(i, b);
+            System.out.println(i + " -> " + b);
+        }
         Disk.read(400_000, b);
         System.out.println(b);
 
@@ -240,26 +246,30 @@ public class Disk {
         System.out.println(b);
 
         inode.bytesToExtents(bytes, 400_000);
-        Disk.write(400_001, new Block(300, false));
-
+        inode.writeExtents(bytes);
+//        Disk.write(400_001, new Block(300, false));
 
         Disk.read(400_000, b);
         System.out.println(b);
 
         System.out.println(inode);
-        inode.bytesToExtents(bytes, 400_000);
-        System.out.println("-------------");
-        System.out.println(inode);
-
-        Disk.read(400_000, b);
-        System.out.println(b);
-        Disk.write(400_001, new Block(400_002, false));
+//        inode2.bytesToExtents(bytes, 400_000);
+//        inode2.writeExtents(bytes);
+//        System.out.println("-------------");
+//        System.out.println(inode);
+//
+//        Disk.read(400_000, b);
+//        System.out.println(b);
+//        Disk.write(400_001, new Block(400_002, false));
 
         System.out.println("=======");
         for (int i = 399_990; i < 400_020; i++) {
             Disk.read(i, b);
-            System.out.println(b);
+            System.out.println(i + " -> " + b);
+            Disk.write(i, new Block(i+1, false));
         }
+        System.out.println(bytes.length);
+        System.out.println("e ovoga je".getBytes().length);
 
     }
 }

@@ -1,4 +1,5 @@
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 public class Inode implements Serializable {
@@ -81,6 +82,7 @@ public class Inode implements Serializable {
         return size / 5;
     }
 
+    // TODO: 17.11.2019. consider joining bytesToExtents and writeExtents to single method
     public void bytesToExtents(byte[] data, int startOfFree) {
         int written = 0;
         int sizeOfData = data.length;
@@ -116,8 +118,26 @@ public class Inode implements Serializable {
                 }
             }
         }
-
     }
+
+    // TODO: 17.11.2019. check if the trailing zeros will effect the result
+    public void writeExtents(byte[] data) {
+        int written = 0;
+        for (Extent e : pointers) {
+            // 5 is the size of a block
+            int size = e.getSize() * 5;
+            byte[] buffer = Arrays.copyOfRange(data, written, size + written);
+            written += size;
+            // change this with disc writes
+            System.out.println("---------------");
+            System.out.println(new String(buffer) + "|");
+            System.out.println(buffer.length);
+            System.out.println(written);
+            System.out.println("---------------");
+            Disk.write(e.getStartIndex(), buffer);
+        }
+    }
+
 
     @Override
     public String toString() {
