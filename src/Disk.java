@@ -4,6 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+// TODO: 19.11.2019. Rename class to DISC
 public class Disk {
     // the size in bytes of each disk block
     public static final int BLOCK_SIZE = 5;
@@ -43,6 +44,11 @@ public class Disk {
         }
     }
 
+    /**
+     * Seek to a blocknumber
+     * @param blockNumber   - block number to seek
+     * @throws IOException  - if the block number exceeds disc capacity
+     */
     private static void seek(int blockNumber) throws IOException {
         if (blockNumber < 0 || blockNumber > NUMBER_OF_BLOCKS) {
             throw new RuntimeException("Block number: " + blockNumber + " is out of range");
@@ -52,6 +58,11 @@ public class Disk {
 
     // region Read methods
 
+    /**
+     * Read from blockNumber to outputBuffer. The number of read is the size of the buffer
+     * @param blockNumber   - start of read
+     * @param outputBuffer  - buffer to put the read data
+     */
     public static void read(int blockNumber, byte [] outputBuffer) {
 //        if (outputBuffer.length != BLOCK_SIZE) {
 //            throw new RuntimeException("Read: bad buffer length: " + outputBuffer.length);
@@ -65,6 +76,11 @@ public class Disk {
         readCount++;
     }
 
+    /**
+     * Read the SuperBlock
+     * @param blocknum  - start of read
+     * @param block     - SuperBlock to put the read data
+     */
     public static void read(int blocknum, SuperBlock block) {
         try {
             seek(blocknum);
@@ -80,6 +96,11 @@ public class Disk {
         readCount++;
     }
 
+    /**
+     * Read the InodeBlock
+     * @param blockNumber   - start of read
+     * @param block         - InodeBlock to read the data into
+     */
     public static void read(int blockNumber, InodeBlock block) {
         try {
             seek(blockNumber);
@@ -95,6 +116,11 @@ public class Disk {
         }
     }
 
+    /**
+     * Read singe 5B block (next:int, free:boolean)
+     * @param blockNumber   - start of read
+     * @param block         - Block to read into
+     */
     public static void read(int blockNumber, Block block) {
         try {
             seek(blockNumber);
@@ -105,9 +131,20 @@ public class Disk {
         }
     }
 
+    /**
+     * Reading directory from a given inode
+     * @param inode - the inode of a directory
+     * @return - null if there was an error, else the wanted directroy
+     */
     public Directory readDirectoryFromINode(Inode inode) {
-        // TODO: 8.11.2019. implement this
-        return new Directory("root");
+        Directory readDir = null;
+        try {
+            byte [] directoryBytes = inode.readExents();
+            readDir = Directory.convertFromBytes(directoryBytes);
+        } catch (IOException | ClassNotFoundException e) {
+            LOGGER.log(Level.SEVERE, e.toString(), e);
+        }
+        return readDir;
     }
 
     // endregion
@@ -115,6 +152,12 @@ public class Disk {
 
     // region Write methods
 
+    /**
+     * Write Superblock to disk
+     * @param blocknum  - start of writing the superblock
+     * @param block - the block we are writing
+     */
+    // maybe change this to use the same functionality as InodeBlock (with convertToBytes)
     public static void write(int blocknum, SuperBlock block) {
         try {
             seek(blocknum);
@@ -130,6 +173,11 @@ public class Disk {
         writeCount++;
     }
 
+    /**
+     * Write inode block
+     * @param blockNumber   - start of writing the InodeBlock
+     * @param block - block to write
+     */
     public static void write(int blockNumber, InodeBlock block) {
         try {
             seek(blockNumber);
@@ -145,7 +193,12 @@ public class Disk {
             LOGGER.log(Level.SEVERE, e.toString(), e);
         }
     }
-    
+
+    /**
+     * Write any bytes to disc
+     * @param blockNumber   - start of writing
+     * @param block - byte array to write
+     */
     public static void write(int blockNumber, byte [] block) {
         try {
             seek(blockNumber);
@@ -155,6 +208,11 @@ public class Disk {
         }
     }
 
+    /**
+     * Write single block (5 bytes) to disc (next:int, free:boolean)
+     * @param blockNumber   - start of writing
+     * @param block - block to write
+     */
     public static void write(int blockNumber, Block block) {
         try {
             seek(blockNumber);
@@ -167,6 +225,12 @@ public class Disk {
 
     // endregion
 
+    /**
+     * Formatting of the disc
+     * - set all blocks with proper int:boolean values (next:free)
+     * - write SuperBlock
+     * - create rootDir and Inode
+     */
     public void formatDisc() {
         for (int i = 0; i < 4_000_000; i++) {
             try {
@@ -185,7 +249,16 @@ public class Disk {
         // create root directory
         Inode rootINode = new Inode();
         Directory rootDir = new Directory("root");
-
+        InodeBlock inodeBlock = new InodeBlock();
+        InodeBlock.addNodeToList(rootINode);
+        // write root directory and inode block to disc
+        try {
+            rootINode.bytesToExtents(rootDir.convertToBytes(), superBlock.getStartOfFree());
+            rootINode.writeExtents(rootDir.convertToBytes());
+            write(superBlock.getStartOfINode(), inodeBlock.convertToBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
     }
@@ -227,17 +300,13 @@ public class Disk {
 
         Disk d = new Disk();
         Inode inode = new Inode();
+        Directory rootDir = new Directory("root");
+        SuperBlock sb = new SuperBlock();
+
         Inode inode2 = new Inode();
-//        byte [] bytes = "Tetstiranje ovoga je zabavno".getBytes();
-        byte [] bytes = null;
-        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream("README.md"))) {
-            bytes = bis.readAllBytes();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         Block b = new Block();
-        for (int i = 399_990; i < 400_020; i++) {
+        for (int i = 399_990; i < 400_400; i++) {
             Disk.write(i, new Block(i+1, false));
             Disk.read(i, b);
             System.out.println(i + " -> " + b);
@@ -247,33 +316,38 @@ public class Disk {
             Disk.read(i, b);
             System.out.println(i + " -> " + b);
         }
-        Disk.read(400_000, b);
-        System.out.println(b);
-
-        Disk.write(400_000, new Block(400_001, false));
 
 
-        Disk.read(400_000, b);
-        System.out.println(b);
 
-//        inode.bytesToExtents(bytes, 400_000);
-//        inode.writeExtents(bytes);
-//        inode.readExents();
-        Disk.write(400_001, new Block(300, false));
 
-        Disk.read(400_000, b);
-        System.out.println(b);
 
-        System.out.println(inode2);
-        inode2.bytesToExtents(bytes, 400_000);
-//        inode2.writeExtents(bytes);
-//        inode2.readExents();
-        System.out.println("-------------");
-        System.out.println(inode2);
 
-        Disk.read(400_000, b);
-        System.out.println(b);
-        Disk.write(400_001, new Block(400_002, false));
+        try {
+            System.out.println(rootDir.convertToBytes().length);
+            inode.bytesToExtents(rootDir.convertToBytes(), sb.getStartOfFree());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            inode.writeExtents(rootDir.convertToBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        byte [] dirRead = inode.readExents();
+        System.out.println("-------------------");
+        System.out.println("Direktorijum je procitan");
+        System.out.println("-------------------");
+        Directory read_d = null;
+        try {
+            read_d = Directory.convertFromBytes(dirRead);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println(read_d);
+
+
+
 
         System.out.println("=======");
         for (int i = 399_990; i < 400_020; i++) {
@@ -281,11 +355,5 @@ public class Disk {
             System.out.println(i + " -> " + b);
             Disk.write(i, new Block(i+1, false));
         }
-        System.out.println(bytes.length);
-        System.out.println("e ovoga je".getBytes().length);
-        System.out.println("--------");
-        System.out.println("# This is a file system representation (iNode)".getBytes().length);
-        System.out.println("a file system representation (iNode)    ".getBytes().length);
-        System.out.println("a file system representation (iNode)".getBytes().length);
     }
 }

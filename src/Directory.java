@@ -36,7 +36,7 @@ public class Directory implements Serializable {
         }
     }
 
-    public Directory convertFromBytes(byte[] bytes) throws IOException, ClassNotFoundException {
+    public static Directory convertFromBytes(byte[] bytes) throws IOException, ClassNotFoundException {
         try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
              ObjectInputStream ois = new ObjectInputStream(bis)) {
             return (Directory) ois.readObject();

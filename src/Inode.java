@@ -122,25 +122,25 @@ public class Inode implements Serializable {
         }
     }
 
-    // TODO: 17.11.2019. check if the trailing zeros will effect the result
     public void writeExtents(byte[] data) {
         int written = 0;
         for (Extent e : pointers) {
             // 5 is the size of a block
             int size = e.getSize() * 5;
+//            byte[] buffer = Arrays.copyOfRange(data, written, (size + written < data.length) ? size+written : data.length);
             byte[] buffer = Arrays.copyOfRange(data, written, size + written);
             written += size;
             // change this with disc writes
-            System.out.println("---------------");
-            System.out.println(new String(buffer) + "|");
-            System.out.println(buffer.length);
-            System.out.println(written);
-            System.out.println("---------------");
+//            System.out.println("---------------");
+//            System.out.println(new String(buffer) + "|");
+//            System.out.println(buffer.length);
+//            System.out.println(written);
+//            System.out.println("---------------");
             Disk.write(e.getStartIndex(), buffer);
         }
     }
 
-    public void readExents() {
+    public byte[] readExents() {
         int read = 0;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         for (Extent e : pointers) {
@@ -154,9 +154,10 @@ public class Inode implements Serializable {
             }
         }
         // TODO: 17.11.2019. return byte array and maybe add exception to method
-        System.out.println("======");
-        System.out.println(new String(baos.toByteArray()) + "|");
-        System.out.println("======");
+//        System.out.println("======");
+//        System.out.println(new String(baos.toByteArray()) + "|");
+//        System.out.println("======");
+        return baos.toByteArray();
     }
 
     @Override

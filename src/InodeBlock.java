@@ -33,6 +33,7 @@ public class InodeBlock implements Serializable {
     // endregion
 
     // region Methods
+    // TODO: 19.11.2019. maybe remove static
     public static void addNodeToList(Inode inode) {
         inodeList.add(inode);
         size++;
