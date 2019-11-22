@@ -6,9 +6,10 @@ public class SuperBlock implements Serializable {
     private int startOfINode;
     private int startOfRoot;
     private int numberOfInodes;
+    private static final long serialVersionUID = 1L;
 
     public SuperBlock() {
-        startOfINode = 4;
+        startOfINode = 50;
         startOfFree = 400_000;
         startOfRoot = 400_000;  // just the first time the disk is opened (disc is empty)
         numberOfInodes = 1;

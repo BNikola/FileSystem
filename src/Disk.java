@@ -102,16 +102,39 @@ public class Disk {
      * @param block         - InodeBlock to read the data into
      */
     public static void read(int blockNumber, InodeBlock block) {
+        // TODO: 22.11.2019. this does not work 
         try {
-            seek(blockNumber);
-            block.setSize(disk.readInt());
-            for (int i = 0; i < block.getInodeList().size(); i++) {
-                block.getInodeList().get(i).setNumberOfExtents(disk.readInt());
-                for (int j = 0; j < block.getInodeList().get(i).getNumberOfExtents(); j++) {
-                    block.getInodeList().get(i).getPointers().set(j, new Extent(disk.readInt(), disk.readShort()));
+//            seek(blockNumber);
+//            block.setSize(disk.readInt());
+//            for (int i = 0; i < block.getInodeList().size(); i++) {
+//                block.getInodeList().get(i).setNumberOfExtents(disk.readInt());
+//                for (int j = 0; j < block.getInodeList().get(i).getNumberOfExtents(); j++) {
+//                    block.getInodeList().get(i).getPointers().set(j, new Extent(disk.readInt(), disk.readShort()));
+//                }
+//            }
+            System.out.println("Inode block: " + blockNumber);
+
+            try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                Block b = new Block();
+                int sum = 0;
+                for (int i = 50; i < 400_000; i++) {
+                    read(i, b);
+                    if (b.getNext() == i + 1) {
+                        break;
+                    }
+                    sum+=5;
+                    System.out.println(sum);
                 }
+                byte[] bytes = new byte[sum];
+                disk.seek(50*5);
+                System.out.println("FP: " + disk.getFilePointer());
+                disk.read(bytes);
+                InodeBlock inb = InodeBlock.convertFromBytes(bytes);
+                System.out.println(bytes.length);
+                System.out.println("TEST: " + inb);
             }
-        } catch (IOException e) {
+
+        } catch (IOException | ClassNotFoundException e) {
             LOGGER.log(Level.SEVERE, e.toString(), e);
         }
     }
@@ -180,15 +203,17 @@ public class Disk {
      */
     public static void write(int blockNumber, InodeBlock block) {
         try {
-            seek(blockNumber);
-            disk.writeInt(block.getSize());
-            for (int i = 0; i < block.getInodeList().size(); i++) {
-                disk.writeInt(block.getInodeList().get(i).getNumberOfExtents());
-                for (int j = 0; j < block.getInodeList().get(i).getNumberOfExtents(); j++) {
-                    disk.writeInt(block.getInodeList().get(i).getPointers().get(j).getStartIndex());
-                    disk.writeShort(block.getInodeList().get(i).getPointers().get(j).getSize());
-                }
-            }
+            // TODO: 22.11.2019. remove old code
+//            seek(blockNumber);
+//            disk.writeInt(block.getSize());
+//            for (int i = 0; i < block.getInodeList().size(); i++) {
+//                disk.writeInt(block.getInodeList().get(i).getNumberOfExtents());
+//                for (int j = 0; j < block.getInodeList().get(i).getNumberOfExtents(); j++) {
+//                    disk.writeInt(block.getInodeList().get(i).getPointers().get(j).getStartIndex());
+//                    disk.writeShort(block.getInodeList().get(i).getPointers().get(j).getSize());
+//                }
+//            }
+            write(blockNumber, block.convertToBytes());
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.toString(), e);
         }
@@ -241,6 +266,7 @@ public class Disk {
             }
         }
 
+        // TODO: 19.11.2019. Maybe use serializeHeader method
         // write the super block
         SuperBlock superBlock = new SuperBlock();
         write(0, superBlock);
@@ -249,6 +275,7 @@ public class Disk {
         // create root directory
         Inode rootINode = new Inode();
         Directory rootDir = new Directory("root");
+        rootDir.addFile("root", 0);
         InodeBlock inodeBlock = new InodeBlock();
         InodeBlock.addNodeToList(rootINode);
         // write root directory and inode block to disc
@@ -259,8 +286,14 @@ public class Disk {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
-
+    // TODO: 22.11.2019. consider boolean
+    public static void boot(SuperBlock superBlock, InodeBlock inodeBlock) {
+//        superBlock = new SuperBlock();
+        read(0, superBlock);
+//        inodeBlock = new InodeBlock();
+        read(superBlock.getStartOfINode(), inodeBlock);
     }
 
     // TODO: 24.9.2019. Add read of the iNode - and add iNode
@@ -280,18 +313,7 @@ public class Disk {
 ////            System.out.println(b);
 ////
 ////        }
-//        Inode rootINode1 = new Inode();
-//        Inode rootINode2 = new Inode();
-//        Directory rootDir = new Directory("root");
-//        rootDir.addFile("root", 0);
-//        System.out.println(rootDir);
-//        rootINode1.addPointer(new Extent(20, (short) 5));
-//        rootINode1.addPointer(new Extent(27, (short) 5));
-//        rootINode2.addPointer(new Extent(55, (short) 2));
-//        InodeBlock inb = new InodeBlock();
-//        InodeBlock.addNodeToList(rootINode1);
-//        InodeBlock.addNodeToList(rootINode2);
-//        System.out.println(inb);
+//
 //
 //        // TODO: 9.11.2019. change read and write methods using this, add serialization to everything
 //        // TODO: 9.11.2019. check if the data after stays ok
@@ -299,61 +321,16 @@ public class Disk {
         // endregion
 
         Disk d = new Disk();
-        Inode inode = new Inode();
-        Directory rootDir = new Directory("root");
-        SuperBlock sb = new SuperBlock();
-
-        Inode inode2 = new Inode();
-
+//        d.formatDisc();
+        SuperBlock superBlock = new SuperBlock();
+        InodeBlock inodeBlock = new InodeBlock();
+        Disk.boot(superBlock, inodeBlock);
+        System.out.println(superBlock);
+        System.out.println(inodeBlock);
         Block b = new Block();
-        for (int i = 399_990; i < 400_400; i++) {
-            Disk.write(i, new Block(i+1, false));
+        for (int i = 0; i < 350; i++) {
             Disk.read(i, b);
             System.out.println(i + " -> " + b);
-        }
-        for (int i = 300; i < 400; i++) {
-            Disk.write(i, new Block(i+1, false));
-            Disk.read(i, b);
-            System.out.println(i + " -> " + b);
-        }
-
-
-
-
-
-
-        try {
-            System.out.println(rootDir.convertToBytes().length);
-            inode.bytesToExtents(rootDir.convertToBytes(), sb.getStartOfFree());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            inode.writeExtents(rootDir.convertToBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        byte [] dirRead = inode.readExents();
-        System.out.println("-------------------");
-        System.out.println("Direktorijum je procitan");
-        System.out.println("-------------------");
-        Directory read_d = null;
-        try {
-            read_d = Directory.convertFromBytes(dirRead);
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println(read_d);
-
-
-
-
-        System.out.println("=======");
-        for (int i = 399_990; i < 400_020; i++) {
-            Disk.read(i, b);
-            System.out.println(i + " -> " + b);
-            Disk.write(i, new Block(i+1, false));
         }
     }
 }

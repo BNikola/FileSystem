@@ -9,6 +9,7 @@ public class Inode implements Serializable {
     private int fileSize;
     private LinkedList<Extent> pointers;
     private long timestamp;
+    private static final long serialVersionUID = 1L;
 
 
     // region Constructor

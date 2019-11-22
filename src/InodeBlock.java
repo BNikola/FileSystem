@@ -5,6 +5,7 @@ import java.util.List;
 public class InodeBlock implements Serializable {
     public static List<Inode> inodeList = new ArrayList<>();
     public static int size; // number of i nodes
+    private static final long serialVersionUID = 1L;
 
 
     // region Constructors
@@ -49,9 +50,10 @@ public class InodeBlock implements Serializable {
         }
     }
 
-    public InodeBlock convertFromBytes(byte[] bytes) throws IOException, ClassNotFoundException {
+    public static InodeBlock convertFromBytes(byte[] bytes) throws IOException, ClassNotFoundException {
         try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
              ObjectInputStream ois = new ObjectInputStream(bis)) {
+            System.out.println(ois.readObject().toString());
             return (InodeBlock) ois.readObject();
         }
     }

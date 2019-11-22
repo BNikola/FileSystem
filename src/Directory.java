@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Directory implements Serializable {
-    public static HashMap<String, Integer> fileNames = new HashMap<>();
+    public static HashMap<String, Integer> fileNames = new HashMap<>();     // hash map: nameOfFile:inodeNumber
     public List<Integer> fileNamesLengths = new ArrayList<>();  // when reading, read how many files are in hash map
     public int filesLength;
     public String name;
