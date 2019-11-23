@@ -12,6 +12,10 @@ public class InodeBlock implements Serializable, Cloneable {
     public InodeBlock() {
         size = 0;
     }
+    public InodeBlock(InodeBlock inodeBlock) {
+        this.inodeList = inodeBlock.inodeList;
+        this.size = inodeBlock.size;
+    }
     // endregion
 
     // region Getters and Setters

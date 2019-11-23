@@ -81,7 +81,8 @@ public class Disk {
      * @param blocknum  - start of read
      * @param block     - SuperBlock to put the read data
      */
-    public static void read(int blocknum, SuperBlock block) {
+    public static SuperBlock read(int blocknum) {
+        SuperBlock block = new SuperBlock();
         try {
             seek(blocknum);
             block.setStartOfFree(disk.readInt());
@@ -95,6 +96,7 @@ public class Disk {
             System.exit(1);
         }
         readCount++;
+        return block;
     }
 
     /**
@@ -102,21 +104,24 @@ public class Disk {
      * @param blockNumber   - start of read
      * @param block         - InodeBlock to read the data into
      */
-    public static void read(SuperBlock superBlock, InodeBlock block) {
+    public static InodeBlock read(SuperBlock superBlock) {
         byte[] inodeBytes = new byte[superBlock.getEndOfInodeBlock()];
+        InodeBlock block = null;
         try {
             disk.seek(5 * superBlock.getStartOfINode());
             disk.read(inodeBytes);
-            try {
-                // TODO: 23.11.2019. do a deep copy 
-                block = (InodeBlock)((InodeBlock) InodeBlock.convertFromBytes(inodeBytes)).clone();
-            } catch (CloneNotSupportedException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                // TODO: 23.11.2019. do a deep copy
+//                block = (InodeBlock)((InodeBlock) InodeBlock.convertFromBytes(inodeBytes)).clone();
+//            } catch (CloneNotSupportedException e) {
+//                e.printStackTrace();
+//            }
+            block = (InodeBlock) InodeBlock.convertFromBytes(inodeBytes);
             System.out.println("TEST:: " + block);
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
+        return block;
     }
 
     /**
@@ -278,9 +283,9 @@ public class Disk {
     // TODO: 23.11.2019. check static members (they don't get serialized)
     public static void boot(SuperBlock superBlock, InodeBlock inodeBlock) {
 //        superBlock = new SuperBlock();
-        read(0, superBlock);
+//        read(0, superBlock);
 //        inodeBlock = new InodeBlock();
-        read(superBlock, inodeBlock);
+//        read(superBlock, inodeBlock);
     }
 
     // TODO: 24.9.2019. Add read of the iNode - and add iNode
@@ -309,10 +314,10 @@ public class Disk {
 
         Disk d = new Disk();
 //        d.formatDisc();
-        SuperBlock superBlock = new SuperBlock();
+        SuperBlock superBlock = null;
         InodeBlock inodeBlock = null;
-        System.out.println("Nakon boot\n--------------");
-        Disk.boot(superBlock, inodeBlock);
+//        System.out.println("Nakon boot\n--------------");
+//        Disk.boot(superBlock, inodeBlock);
         System.out.println(superBlock);
         System.out.println(inodeBlock);
         Block b = new Block();
@@ -320,9 +325,9 @@ public class Disk {
 //            Disk.read(i, b);
 //            System.out.println(i + " -> " + b);
 //        }
-        Disk.read(0, superBlock);
-        Disk.read(superBlock, inodeBlock);
-        System.out.println(superBlock);
+        superBlock = Disk.read(0);
+
+        inodeBlock = Disk.read(superBlock);
 //        byte[] inodeBytes = new byte[superBlock.getEndOfInodeBlock()];
 //        try {
 //            disk.seek(5 * superBlock.getStartOfINode());
@@ -338,6 +343,6 @@ public class Disk {
 //        }
         System.out.println(superBlock);
         System.out.println(inodeBlock);
-
+// TODO: 23.11.2019. remove clone and clean up code. Read of header done 
     }
 }
