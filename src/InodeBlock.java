@@ -2,9 +2,9 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InodeBlock implements Serializable {
-    public static List<Inode> inodeList = new ArrayList<>();
-    public static int size; // number of i nodes
+public class InodeBlock implements Serializable, Cloneable {
+    public List<Inode> inodeList = new ArrayList<>();
+    public int size; // number of i nodes
     private static final long serialVersionUID = 1L;
 
 
@@ -35,7 +35,7 @@ public class InodeBlock implements Serializable {
 
     // region Methods
     // TODO: 19.11.2019. maybe remove static
-    public static void addNodeToList(Inode inode) {
+    public void addNodeToList(Inode inode) {
         inodeList.add(inode);
         size++;
     }
@@ -50,11 +50,10 @@ public class InodeBlock implements Serializable {
         }
     }
 
-    public static InodeBlock convertFromBytes(byte[] bytes) throws IOException, ClassNotFoundException {
+    public static Object convertFromBytes(byte[] bytes) throws IOException, ClassNotFoundException {
         try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-             ObjectInputStream ois = new ObjectInputStream(bis)) {
-            System.out.println(ois.readObject().toString());
-            return (InodeBlock) ois.readObject();
+             ObjectInput ois = new ObjectInputStream(bis)) {
+            return ois.readObject();
         }
     }
 
@@ -62,5 +61,11 @@ public class InodeBlock implements Serializable {
     public String toString() {
         return "InodeBlock: " + size + "\n" +
                 inodeList.toString();
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
+        // TODO: 23.11.2019. deep copy
     }
 }

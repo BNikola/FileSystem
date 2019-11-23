@@ -1,7 +1,10 @@
-public class Extent {
+import java.io.Serializable;
+
+public class Extent implements Serializable {
     // TODO: 27.9.2019. change modifiers
     private int startIndex;
     private short size;       // number of 5B blocks
+    private static final long serialVersionUID = 1L;
 
     public Extent(int startIndex, short size) {
         this.startIndex = startIndex;

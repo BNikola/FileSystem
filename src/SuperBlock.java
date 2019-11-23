@@ -6,6 +6,7 @@ public class SuperBlock implements Serializable {
     private int startOfINode;
     private int startOfRoot;
     private int numberOfInodes;
+    private int endOfInodeBlock;
     private static final long serialVersionUID = 1L;
 
     public SuperBlock() {
@@ -48,8 +49,22 @@ public class SuperBlock implements Serializable {
         this.numberOfInodes = numberOfInodes;
     }
 
+    public int getEndOfInodeBlock() {
+        return endOfInodeBlock;
+    }
+
+    public void setEndOfInodeBlock(int endOfInodeBlock) {
+        this.endOfInodeBlock = endOfInodeBlock;
+    }
+
     @Override
     public String toString() {
-        return "Superblock: " + startOfINode + " " + startOfFree + " " + numberOfInodes;
+        return "SuperBlock{" +
+                "startOfFree=" + startOfFree +
+                ", startOfINode=" + startOfINode +
+                ", startOfRoot=" + startOfRoot +
+                ", numberOfInodes=" + numberOfInodes +
+                ", endOfInodeBlock=" + endOfInodeBlock +
+                '}';
     }
 }
