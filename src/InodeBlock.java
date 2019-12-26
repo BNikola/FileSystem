@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InodeBlock implements Serializable, Cloneable {
+public class InodeBlock implements Serializable {
     public List<Inode> inodeList = new ArrayList<>();
     public int size; // number of i nodes
     private static final long serialVersionUID = 1L;
@@ -65,11 +65,5 @@ public class InodeBlock implements Serializable, Cloneable {
     public String toString() {
         return "InodeBlock: " + size + "\n" +
                 inodeList.toString();
-    }
-
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
-        // TODO: 23.11.2019. deep copy
     }
 }

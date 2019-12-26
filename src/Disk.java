@@ -111,7 +111,6 @@ public class Disk {
             disk.seek(5 * superBlock.getStartOfINode());
             disk.read(inodeBytes);
 //            try {
-//                // TODO: 23.11.2019. do a deep copy
 //                block = (InodeBlock)((InodeBlock) InodeBlock.convertFromBytes(inodeBytes)).clone();
 //            } catch (CloneNotSupportedException e) {
 //                e.printStackTrace();
@@ -252,8 +251,6 @@ public class Disk {
                 LOGGER.log(Level.SEVERE, e.toString(), e);
             }
         }
-
-        // TODO: 19.11.2019. Maybe use serializeHeader method
         // write the super block
         SuperBlock superBlock = new SuperBlock();
 
@@ -279,8 +276,6 @@ public class Disk {
     }
 
     // TODO: 22.11.2019. consider boolean
-    // TODO: 23.11.2019. Inode block not being read
-    // TODO: 23.11.2019. check static members (they don't get serialized)
     public static void boot(SuperBlock superBlock, InodeBlock inodeBlock) {
 //        superBlock = new SuperBlock();
 //        read(0, superBlock);
@@ -289,7 +284,6 @@ public class Disk {
     }
 
     // TODO: 24.9.2019. Add read of the iNode - and add iNode
-    //    // TODO: 24.9.2019. Add write methods
 
     public static void main(String[] args) {
         // region Old main
@@ -313,7 +307,7 @@ public class Disk {
         // endregion
 
         Disk d = new Disk();
-//        d.formatDisc();
+        d.formatDisc();
         SuperBlock superBlock = null;
         InodeBlock inodeBlock = null;
 //        System.out.println("Nakon boot\n--------------");
