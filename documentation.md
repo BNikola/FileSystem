@@ -1,4 +1,4 @@
-#Disk
+#DISC
 ## Members
 - Block size: 5B
 - Size: 20MB = 20_000_000B

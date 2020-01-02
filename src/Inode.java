@@ -85,20 +85,19 @@ public class Inode implements Serializable {
         return size / 5;
     }
 
-    // TODO: 17.11.2019. consider joining bytesToExtents and writeExtents to single method
-    public void bytesToExtents(byte[] data, int startOfFree) {
+    public void bytesToExtents(byte[] data, SuperBlock superBlock) {
         int written = 0;
         int sizeOfData = data.length;
         int sizeOfDataInBlocks = sizeOfData/5 + 1;
-        int extentStartIndex = startOfFree;
+        int extentStartIndex = superBlock.getStartOfFree();
         while (written < sizeOfDataInBlocks) {
             int extentStart = extentStartIndex;
             Block old = new Block();
             short extentSize = 0;
             for (int i = extentStart; written < sizeOfDataInBlocks;) {
-                Disk.read(i, old);
+                DISC.read(i, old);
+                superBlock.setStartOfFree(old.getNext());
                 if (i == old.getNext() - 1 && written < sizeOfDataInBlocks) {
-                    System.out.println("sljedeci je");
                     i++;
                     written++;
                     extentSize++;
@@ -128,16 +127,9 @@ public class Inode implements Serializable {
         for (Extent e : pointers) {
             // 5 is the size of a block
             int size = e.getSize() * 5;
-//            byte[] buffer = Arrays.copyOfRange(data, written, (size + written < data.length) ? size+written : data.length);
             byte[] buffer = Arrays.copyOfRange(data, written, size + written);
             written += size;
-            // change this with disc writes
-//            System.out.println("---------------");
-//            System.out.println(new String(buffer) + "|");
-//            System.out.println(buffer.length);
-//            System.out.println(written);
-//            System.out.println("---------------");
-            Disk.write(e.getStartIndex(), buffer);
+            DISC.write(e.getStartIndex(), buffer);
         }
     }
 
@@ -147,17 +139,13 @@ public class Inode implements Serializable {
         for (Extent e : pointers) {
             byte[] buffer = new byte[e.getSize() * 5];
             read += size();
-            Disk.read(e.getStartIndex(), buffer);
+            DISC.read(e.getStartIndex(), buffer);
             try {
                 baos.write(buffer);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
-        // TODO: 17.11.2019. return byte array and maybe add exception to method
-//        System.out.println("======");
-//        System.out.println(new String(baos.toByteArray()) + "|");
-//        System.out.println("======");
         return baos.toByteArray();
     }
 

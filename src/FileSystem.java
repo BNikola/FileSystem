@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.logging.Level;
 
 public class FileSystem {
 
@@ -9,9 +10,32 @@ public class FileSystem {
     public Inode currentInode;
 
     public FileSystem() {
-        currentDirectory = new Directory("root");
+        DISC D = new DISC();
+        DISC.boot();
+        try {
+            currentDirectory = Directory.convertFromBytes(DISC.inodeBlock.inodeList.get(0).readExents());
+        } catch (IOException | ClassNotFoundException e) {
+            DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
+        }
         // add root inode read here
         // currentInode = read first inode
+    }
+
+    // region Methods
+
+    public String pwd() {
+        String result = "";
+        if (currentDirectory.name.equals("root")) {
+            result = "/root";
+        } else {
+            result = "/root/" + currentDirectory.name;
+        }
+
+        return result;
+    }
+
+    public void ls() {
+        currentDirectory.listFileNames().forEach(System.out::println);
     }
 
     public boolean mkdir(String startDirName, String newDirName) {
@@ -96,4 +120,6 @@ public class FileSystem {
     public int cat(String path) {
         return 1; // return file descriptor
     }
+
+    // endregion
 }

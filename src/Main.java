@@ -4,6 +4,13 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 public class Main {
+    public static void main(String[] args) {
+        FileSystem fs = new FileSystem();
+
+        System.out.println(fs.currentDirectory);
+        System.out.println(fs.pwd());
+        fs.ls();
+    }
 //    public static void main(String[] args) {
 //        SuperBlock sb = new SuperBlock();
 ////        InodeBlock ib = new InodeBlock();

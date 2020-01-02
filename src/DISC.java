@@ -4,8 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-// TODO: 19.11.2019. Rename class to DISC
-public class Disk {
+public class DISC {
     // the size in bytes of each disk block
     public static final int BLOCK_SIZE = 5;
     // size of the disc in bytes
@@ -16,6 +15,10 @@ public class Disk {
     // number of reads and writes to the file system
     private static int readCount = 0;
     private static int writeCount = 0;
+
+    // super block
+    public static SuperBlock superBlock = null;
+    public static InodeBlock inodeBlock = null;
 
 
     // file that represents the file system
@@ -35,7 +38,7 @@ public class Disk {
         }
     }
 
-    public Disk() {
+    public DISC() {
         try {
             fileName = new File("DISK");
             disk = new RandomAccessFile(fileName, "rw");
@@ -78,13 +81,11 @@ public class Disk {
 
     /**
      * Read the SuperBlock
-     * @param blocknum  - start of read
-     * @param block     - SuperBlock to put the read data
      */
-    public static SuperBlock read(int blocknum) {
+    public static SuperBlock read() {
         SuperBlock block = new SuperBlock();
         try {
-            seek(blocknum);
+            seek(0);
             block.setStartOfFree(disk.readInt());
             block.setStartOfINode(disk.readInt());
             block.setStartOfRoot(disk.readInt());
@@ -101,8 +102,7 @@ public class Disk {
 
     /**
      * Read the InodeBlock
-     * @param blockNumber   - start of read
-     * @param block         - InodeBlock to read the data into
+     * @param superBlock         - SuperBlock to read the data into
      */
     public static InodeBlock read(SuperBlock superBlock) {
         byte[] inodeBytes = new byte[superBlock.getEndOfInodeBlock()];
@@ -110,11 +110,6 @@ public class Disk {
         try {
             disk.seek(5 * superBlock.getStartOfINode());
             disk.read(inodeBytes);
-//            try {
-//                block = (InodeBlock)((InodeBlock) InodeBlock.convertFromBytes(inodeBytes)).clone();
-//            } catch (CloneNotSupportedException e) {
-//                e.printStackTrace();
-//            }
             block = (InodeBlock) InodeBlock.convertFromBytes(inodeBytes);
             System.out.println("TEST:: " + block);
         } catch (IOException | ClassNotFoundException e) {
@@ -188,16 +183,6 @@ public class Disk {
      */
     public static void write(int blockNumber, InodeBlock block) {
         try {
-            // TODO: 22.11.2019. remove old code
-//            seek(blockNumber);
-//            disk.writeInt(block.getSize());
-//            for (int i = 0; i < block.getInodeList().size(); i++) {
-//                disk.writeInt(block.getInodeList().get(i).getNumberOfExtents());
-//                for (int j = 0; j < block.getInodeList().get(i).getNumberOfExtents(); j++) {
-//                    disk.writeInt(block.getInodeList().get(i).getPointers().get(j).getStartIndex());
-//                    disk.writeShort(block.getInodeList().get(i).getPointers().get(j).getSize());
-//                }
-//            }
             write(blockNumber, block.convertToBytes());
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.toString(), e);
@@ -263,7 +248,7 @@ public class Disk {
         InodeBlock inodeBlock = new InodeBlock();
         // write root directory and inode block to disc
         try {
-            rootINode.bytesToExtents(rootDir.convertToBytes(), superBlock.getStartOfFree());
+            rootINode.bytesToExtents(rootDir.convertToBytes(), superBlock);
             rootINode.writeExtents(rootDir.convertToBytes());
             inodeBlock.addNodeToList(rootINode);
             byte [] inodeBlockBytes = inodeBlock.convertToBytes();
@@ -275,68 +260,39 @@ public class Disk {
         }
     }
 
-    // TODO: 22.11.2019. consider boolean
-    public static void boot(SuperBlock superBlock, InodeBlock inodeBlock) {
-//        superBlock = new SuperBlock();
-//        read(0, superBlock);
-//        inodeBlock = new InodeBlock();
-//        read(superBlock, inodeBlock);
+    // TODO: 2.1.2020. use this in file system
+    public static void boot() {
+        superBlock = read();
+        inodeBlock = read(superBlock);
     }
 
     // TODO: 24.9.2019. Add read of the iNode - and add iNode
 
     public static void main(String[] args) {
-        // region Old main
-//        Disk d = new Disk();
-////        d.formatDisc();
-////
-////        System.out.println("Citanje sa diska");
-////        System.out.println("-------------------------");
-////
-////        Block b = new Block();
-////        for (int i = 0; i < 100; i++) {
+
+
+        DISC d = new DISC();
+//        d.formatDisc();
+//        SuperBlock superBlock = null;
+//        InodeBlock inodeBlock = null;
+////        System.out.println("Nakon boot\n--------------");
+////        Disk.boot(superBlock, inodeBlock);
+//        System.out.println(superBlock);
+//        System.out.println(inodeBlock);
+//        Block b = new Block();
+////        for (int i = 0; i < 350; i++) {
 ////            Disk.read(i, b);
-////            System.out.println(b);
-////
+////            System.out.println(i + " -> " + b);
 ////        }
+//        superBlock = Disk.read();
 //
+//        inodeBlock = Disk.read(superBlock);
 //
-//        // TODO: 9.11.2019. change read and write methods using this, add serialization to everything
-//        // TODO: 9.11.2019. check if the data after stays ok
-//
-        // endregion
-
-        Disk d = new Disk();
-        d.formatDisc();
-        SuperBlock superBlock = null;
-        InodeBlock inodeBlock = null;
-//        System.out.println("Nakon boot\n--------------");
-//        Disk.boot(superBlock, inodeBlock);
+//        System.out.println(superBlock);
+//        System.out.println(inodeBlock);
+        d.boot();
         System.out.println(superBlock);
         System.out.println(inodeBlock);
-        Block b = new Block();
-//        for (int i = 0; i < 350; i++) {
-//            Disk.read(i, b);
-//            System.out.println(i + " -> " + b);
-//        }
-        superBlock = Disk.read(0);
 
-        inodeBlock = Disk.read(superBlock);
-//        byte[] inodeBytes = new byte[superBlock.getEndOfInodeBlock()];
-//        try {
-//            disk.seek(5 * superBlock.getStartOfINode());
-//            System.out.println(disk.getFilePointer());
-//            disk.read(inodeBytes);
-//            System.out.println(disk.getFilePointer());
-//            System.out.println(inodeBytes);
-//            System.out.println(inodeBytes.length);
-//            InodeBlock inodeBlock1 = InodeBlock.convertFromBytes(inodeBytes);
-//            System.out.println(inodeBlock1 + " proslo je!");
-//        } catch (IOException | ClassNotFoundException e) {
-//            e.printStackTrace();
-//        }
-        System.out.println(superBlock);
-        System.out.println(inodeBlock);
-// TODO: 23.11.2019. remove clone and clean up code. Read of header done 
     }
 }

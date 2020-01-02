@@ -1,7 +1,10 @@
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class Directory implements Serializable {
     public HashMap<String, Integer> fileNames = new HashMap<>();     // hash map: nameOfFile:inodeNumber
@@ -28,7 +31,6 @@ public class Directory implements Serializable {
         }
     }
 
-    // TODO: 8.11.2019. consider location of this - maybe in Disk class
     public byte[] convertToBytes() throws IOException {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              ObjectOutputStream ous = new ObjectOutputStream(bos)) {
@@ -42,6 +44,10 @@ public class Directory implements Serializable {
              ObjectInputStream ois = new ObjectInputStream(bis)) {
             return (Directory) ois.readObject();
         }
+    }
+
+    public ArrayList<String> listFileNames() {
+        return new ArrayList<>(fileNames.keySet());
     }
 
     @Override
