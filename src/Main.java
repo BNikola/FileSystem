@@ -5,11 +5,17 @@ import java.io.RandomAccessFile;
 
 public class Main {
     public static void main(String[] args) {
+//        FileSystem.disc.formatDisc();
         FileSystem fs = new FileSystem();
 
         System.out.println(fs.currentDirectory);
         System.out.println(fs.pwd());
+        System.out.println(DISC.inodeBlock);
+        System.out.println(DISC.superBlock);
         fs.ls();
+//        fs.mkdir("root2");
+        DISC.inodeBlock.getInodeList().get(0).resetExtents();
+        System.out.println(DISC.superBlock);
     }
 //    public static void main(String[] args) {
 //        SuperBlock sb = new SuperBlock();

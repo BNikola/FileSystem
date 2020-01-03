@@ -8,9 +8,9 @@ public class FileSystem {
 
     public Directory currentDirectory;
     public Inode currentInode;
+    public static DISC disc = new DISC();
 
     public FileSystem() {
-        DISC D = new DISC();
         DISC.boot();
         try {
             currentDirectory = Directory.convertFromBytes(DISC.inodeBlock.inodeList.get(0).readExents());
@@ -35,15 +35,62 @@ public class FileSystem {
     }
 
     public void ls() {
+        System.out.println(currentDirectory.name);
+        System.out.println(currentDirectory);
         currentDirectory.listFileNames().forEach(System.out::println);
     }
 
-    public boolean mkdir(String startDirName, String newDirName) {
-        try {
-        } catch (Exception e) {
+    public boolean mkdir(String newDirName) {
+        // TODO: 3.1.2020. write inode block and super block and add file name to current dir
+        boolean result = false;
+        if (currentDirectory.fileNames.containsKey(newDirName)) {
+            Inode in = DISC.inodeBlock.getInodeList().get(currentDirectory.fileNames.get(newDirName));
+            if (in.getFlags() == 0) {
+                System.out.println("Ne moze to tako");
+                result = false;
+            } else {
+                System.out.println("It exists!!\n");
+                Directory directory = new Directory(newDirName);
+                Inode newDirInode = new Inode();
+                System.out.println(directory);
+                try {
+                    newDirInode.bytesToExtents(directory.convertToBytes(), DISC.superBlock);
+                    newDirInode.writeExtents(directory.convertToBytes());
+                    DISC.inodeBlock.addNodeToList(newDirInode);
+                    currentDirectory.addFile(newDirName, DISC.inodeBlock.getInodeList().indexOf(newDirInode));
+                    DISC.inodeBlock.getInodeList().remove(0);
+//                    DISC.inodeBlock.getInodeList().add(0, currentDirectory);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                System.out.println(newDirInode);
+            }
+        } else {
+            Directory directory = new Directory(newDirName);
+            Inode newDirInode = new Inode();
+            System.out.println(directory);
+            try {
+                newDirInode.bytesToExtents(directory.convertToBytes(), DISC.superBlock);
+                newDirInode.writeExtents(directory.convertToBytes());
+                DISC.inodeBlock.addNodeToList(newDirInode);
+                currentDirectory.addFile(newDirName, DISC.inodeBlock.getInodeList().indexOf(newDirInode));
 
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.out.println("----------\nMKDIR\n----------");
+            System.out.println(newDirInode);
+            System.out.println(currentDirectory);
+            try {
+                disc.writeHeader(DISC.superBlock, DISC.inodeBlock);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        return false;
+
+
+
+        return result;
     }
 
 //    public int put(String fileName) {

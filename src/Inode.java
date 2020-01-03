@@ -10,7 +10,7 @@ public class Inode implements Serializable {
     private LinkedList<Extent> pointers;
     private long timestamp;
     private static final long serialVersionUID = 1L;
-
+// TODO: 3.1.2020. remove excess code nad prints
 
     // region Constructor
     public Inode() {
@@ -148,6 +148,26 @@ public class Inode implements Serializable {
         }
         return baos.toByteArray();
     }
+
+    public void resetExtents() {
+        // TODO: 3.1.2020. make private - write to disc
+//        DISC.superBlock.setStartOfFree(pointers.get(0).getStartIndex());
+        System.out.println(pointers.get(0).getStartIndex());
+        int oldSOF = DISC.superBlock.getStartOfFree();
+        System.out.println(pointers);
+        for (Extent e : pointers) {
+            System.out.println(e.getSize());
+            System.out.println(e.getStartIndex());
+            int i = 0;
+            for (i = e.getStartIndex(); i < e.getStartIndex() + e.getSize() - 1; i++) {
+                System.out.println(i + " - " + (i+1) + " " + false);
+            }
+            System.out.println(i + " - " + oldSOF + " " + false);
+        }
+
+    }
+
+    // TODO: 3.1.2020. make append method
 
     @Override
     public String toString() {

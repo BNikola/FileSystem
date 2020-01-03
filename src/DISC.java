@@ -251,13 +251,17 @@ public class DISC {
             rootINode.bytesToExtents(rootDir.convertToBytes(), superBlock);
             rootINode.writeExtents(rootDir.convertToBytes());
             inodeBlock.addNodeToList(rootINode);
-            byte [] inodeBlockBytes = inodeBlock.convertToBytes();
-            superBlock.setEndOfInodeBlock(inodeBlockBytes.length);
-            write(0, superBlock);
-            write(superBlock.getStartOfINode(), inodeBlock);
+            writeHeader(superBlock, inodeBlock);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.toString(), e);
         }
+    }
+
+    public void writeHeader(SuperBlock superBlock, InodeBlock inodeBlock) throws IOException {
+        byte [] inodeBlockBytes = inodeBlock.convertToBytes();
+        superBlock.setEndOfInodeBlock(inodeBlockBytes.length);
+        write(0, superBlock);
+        write(superBlock.getStartOfINode(), inodeBlock);
     }
 
     // TODO: 2.1.2020. use this in file system
