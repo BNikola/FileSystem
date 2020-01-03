@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.logging.Level;
 
 public class Inode implements Serializable {
     private int flags;
@@ -149,22 +150,39 @@ public class Inode implements Serializable {
         return baos.toByteArray();
     }
 
-    public void resetExtents() {
-        // TODO: 3.1.2020. make private - write to disc
-//        DISC.superBlock.setStartOfFree(pointers.get(0).getStartIndex());
-        System.out.println(pointers.get(0).getStartIndex());
+    private void resetExtents() {
+        System.out.println("RESET EXTENTS");
         int oldSOF = DISC.superBlock.getStartOfFree();
-        System.out.println(pointers);
+        DISC.superBlock.setStartOfFree(pointers.get(0).getStartIndex());
         for (Extent e : pointers) {
-            System.out.println(e.getSize());
-            System.out.println(e.getStartIndex());
             int i = 0;
-            for (i = e.getStartIndex(); i < e.getStartIndex() + e.getSize() - 1; i++) {
-                System.out.println(i + " - " + (i+1) + " " + false);
+            for (i = e.getStartIndex() - 1; i < e.getStartIndex() + e.getSize() - 1; i++) {
+                try {
+                    DISC.getDisk().writeInt(i+1);
+                    DISC.getDisk().writeBoolean(false);
+                    Block b = new Block();
+                    DISC.read(i, b);
+//                    System.out.println(i + " - " + b);
+                } catch (IOException ex) {
+                    DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
+                }
             }
-            System.out.println(i + " - " + oldSOF + " " + false);
+            try {
+                DISC.getDisk().writeInt(oldSOF);
+                DISC.getDisk().writeBoolean(false);
+            } catch (IOException ex) {
+                DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
+            }
         }
+    }
 
+    public Inode append(byte[] newData) {
+        byte [] oldData = readExents();
+        this.resetExtents();
+        Inode newInode = new Inode();
+        newInode.bytesToExtents(newData, DISC.superBlock);
+        newInode.writeExtents(newData);
+        return newInode;
     }
 
     // TODO: 3.1.2020. make append method

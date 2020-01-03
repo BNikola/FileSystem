@@ -14,6 +14,7 @@ public class FileSystem {
         DISC.boot();
         try {
             currentDirectory = Directory.convertFromBytes(DISC.inodeBlock.inodeList.get(0).readExents());
+            currentInode = DISC.inodeBlock.inodeList.get(0);
         } catch (IOException | ClassNotFoundException e) {
             DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
         }
@@ -41,8 +42,10 @@ public class FileSystem {
     }
 
     public boolean mkdir(String newDirName) {
-        // TODO: 3.1.2020. write inode block and super block and add file name to current dir
         boolean result = false;
+        if (!currentDirectory.name.equals("root")) {
+            return false;
+        }
         if (currentDirectory.fileNames.containsKey(newDirName)) {
             Inode in = DISC.inodeBlock.getInodeList().get(currentDirectory.fileNames.get(newDirName));
             if (in.getFlags() == 0) {
@@ -58,8 +61,10 @@ public class FileSystem {
                     newDirInode.writeExtents(directory.convertToBytes());
                     DISC.inodeBlock.addNodeToList(newDirInode);
                     currentDirectory.addFile(newDirName, DISC.inodeBlock.getInodeList().indexOf(newDirInode));
-                    DISC.inodeBlock.getInodeList().remove(0);
-//                    DISC.inodeBlock.getInodeList().add(0, currentDirectory);
+                    currentInode.append(currentDirectory.convertToBytes());
+
+                    DISC.inodeBlock.getInodeList().remove(currentInode);
+                    DISC.inodeBlock.getInodeList().add(0, currentInode);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -74,6 +79,10 @@ public class FileSystem {
                 newDirInode.writeExtents(directory.convertToBytes());
                 DISC.inodeBlock.addNodeToList(newDirInode);
                 currentDirectory.addFile(newDirName, DISC.inodeBlock.getInodeList().indexOf(newDirInode));
+
+
+                DISC.inodeBlock.getInodeList().remove(currentInode);
+                DISC.inodeBlock.getInodeList().add(0, currentInode.append(currentDirectory.convertToBytes()));
 
             } catch (IOException e) {
                 e.printStackTrace();

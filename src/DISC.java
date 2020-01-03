@@ -47,6 +47,10 @@ public class DISC {
         }
     }
 
+    public static RandomAccessFile getDisk() {
+        return disk;
+    }
+
     /**
      * Seek to a blocknumber
      * @param blockNumber   - block number to seek
@@ -220,6 +224,7 @@ public class DISC {
 
     // endregion
 
+
     /**
      * Formatting of the disc
      * - set all blocks with proper int:boolean values (next:free)
@@ -264,7 +269,6 @@ public class DISC {
         write(superBlock.getStartOfINode(), inodeBlock);
     }
 
-    // TODO: 2.1.2020. use this in file system
     public static void boot() {
         superBlock = read();
         inodeBlock = read(superBlock);

@@ -13,8 +13,8 @@ public class Main {
         System.out.println(DISC.inodeBlock);
         System.out.println(DISC.superBlock);
         fs.ls();
-//        fs.mkdir("root2");
-        DISC.inodeBlock.getInodeList().get(0).resetExtents();
+//        fs.mkdir("root3");
+        System.out.println(DISC.inodeBlock);
         System.out.println(DISC.superBlock);
     }
 //    public static void main(String[] args) {
