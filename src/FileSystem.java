@@ -1,7 +1,7 @@
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.logging.Level;
 
 public class FileSystem {
@@ -41,6 +41,7 @@ public class FileSystem {
         currentDirectory.listFileNames().forEach(System.out::println);
     }
 
+    // TODO: 5.1.2020. change using parsePath
     public boolean mkdir(String newDirName) {
         boolean result = false;
         if (!currentDirectory.name.equals("root")) {
@@ -100,6 +101,54 @@ public class FileSystem {
 
 
         return result;
+    }
+
+    // TODO: 5.1.2020. finish after Directory class update
+    public boolean create(String newFilePath) {
+        boolean result = false;
+        System.out.println("CREATE\n" + newFilePath + "\n");
+        System.out.println("=" + parsePath(newFilePath));
+        return false;
+    }
+
+    // TODO: 5.1.2020. finish after Directory class update
+    private boolean parsePath(String newFilePath) {
+        if (newFilePath.endsWith("/")) {
+            System.out.println("Error: wrong file name" );
+            return false;
+        }else if (!newFilePath.startsWith("/root")) {
+            System.out.println("Ne pocinje sa root");
+            return false;
+        } else {
+            ArrayList<String> path = new ArrayList<>(Arrays.asList(newFilePath.split("/")));
+            path.remove(0);
+            System.out.println(path);
+            if (path.size() > 3 || path.size() < 2) {
+                System.out.println("ERR: " + newFilePath);
+                return false;
+            } else if (path.size() == 3){
+                if (currentDirectory.fileNames.containsKey(path.get(1))) {
+                    if (currentDirectory.fileNames.containsKey(path.get(2))) {
+                        System.out.println("ERR: File exists");
+                        return false;
+                    } else {
+                        System.out.println("GOOD " + newFilePath);
+                        return true;
+                    }
+                } else {
+                    System.out.println("ERR: Directory " + path.get(1) + " does not exist");
+                    return false;
+                }
+            } else {
+                if (currentDirectory.fileNames.containsKey(path.get(1))) {
+                    System.out.println("ERR: File exists");
+                    return false;
+                } else {
+                    System.out.println("GOOD " + newFilePath);
+                    return true;
+                }
+            }
+        }
     }
 
 //    public int put(String fileName) {

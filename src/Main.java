@@ -16,6 +16,24 @@ public class Main {
 //        fs.mkdir("root3");
         System.out.println(DISC.inodeBlock);
         System.out.println(DISC.superBlock);
+
+        fs.create("Ovo/je/test");
+        System.out.println("-----\n");
+        fs.create("/root/Ovo/je");
+        System.out.println("-----\n");
+        fs.create("/root/Ovo/je/");
+        System.out.println("-----\n");
+        fs.create("/root/Ovo/je/test");
+        System.out.println("-----\n");
+        fs.create("/root/root2/test");
+        System.out.println("-----\n");
+        fs.create("/root/test");
+        System.out.println("-----\n");
+        fs.create("/root/root2");
+        System.out.println("-----\n");
+        fs.create("/root/test");
+        System.out.println("-----\n");
+
     }
 //    public static void main(String[] args) {
 //        SuperBlock sb = new SuperBlock();

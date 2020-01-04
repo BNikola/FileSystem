@@ -1,12 +1,10 @@
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 public class Directory implements Serializable {
+    // TODO: 5.1.2020. Change hash map to <Integer, String> - same 
     public HashMap<String, Integer> fileNames = new HashMap<>();     // hash map: nameOfFile:inodeNumber
     public List<Integer> fileNamesLengths = new ArrayList<>();  // when reading, read how many files are in hash map
     public int filesLength;
