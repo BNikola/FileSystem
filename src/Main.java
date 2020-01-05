@@ -1,7 +1,5 @@
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.util.logging.Level;
 
 public class Main {
     public static void main(String[] args) {
@@ -17,6 +15,9 @@ public class Main {
         System.out.println(DISC.inodeBlock);
         System.out.println(DISC.superBlock);
 
+//        DISC.inodeBlock.getInodeList().get(0).showMeTheMoney();
+
+
         fs.create("Ovo/je/test");
         System.out.println("-----\n");
         fs.create("/root/Ovo/je");
@@ -29,9 +30,9 @@ public class Main {
         System.out.println("-----\n");
         fs.create("/root/test");
         System.out.println("-----\n");
-        fs.create("/root/root2");
+        fs.create("/root/root3");
         System.out.println("-----\n");
-        fs.create("/root/test");
+        fs.create("/root/root3/test");
         System.out.println("-----\n");
 
     }

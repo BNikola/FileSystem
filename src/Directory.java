@@ -2,10 +2,10 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Directory implements Serializable {
-    // TODO: 5.1.2020. Change hash map to <Integer, String> - same 
-    public HashMap<String, Integer> fileNames = new HashMap<>();     // hash map: nameOfFile:inodeNumber
+    public HashMap<Integer, String> fileNames = new HashMap<>();     // hash map: nameOfFile:inodeNumber
     public List<Integer> fileNamesLengths = new ArrayList<>();  // when reading, read how many files are in hash map
     public int filesLength;
     public String name;
@@ -18,11 +18,11 @@ public class Directory implements Serializable {
         this.filesLength = fileNames.size();
     }
 
-    public boolean addFile(String newFileName, Integer iNode) {
-        if (fileNames.containsKey(newFileName) && fileNames.values().contains(iNode)) {
+    public boolean addFile(Integer iNode, String newFileName) {
+        if (fileNames.containsKey(iNode)) {
             return false;
         } else {
-            fileNames.put(newFileName, iNode);
+            fileNames.put(iNode, newFileName);
             filesLength++;
             fileNamesLengths.add(newFileName.length());
             return true;
@@ -45,7 +45,15 @@ public class Directory implements Serializable {
     }
 
     public ArrayList<String> listFileNames() {
-        return new ArrayList<>(fileNames.keySet());
+        return new ArrayList<>(fileNames.values());
+    }
+
+    public Integer getKey(String value) {
+        return fileNames.entrySet()
+                .stream()
+                .filter(entry -> value.equals(entry.getValue()))
+                .map(Map.Entry::getKey)
+                .findFirst().get();
     }
 
     @Override

@@ -249,7 +249,7 @@ public class DISC {
         // create root directory
         Inode rootINode = new Inode();
         Directory rootDir = new Directory("root");
-        rootDir.addFile("root", 0);
+        rootDir.addFile(0, "root");
         InodeBlock inodeBlock = new InodeBlock();
         // write root directory and inode block to disc
         try {

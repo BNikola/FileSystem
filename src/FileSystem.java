@@ -47,8 +47,8 @@ public class FileSystem {
         if (!currentDirectory.name.equals("root")) {
             return false;
         }
-        if (currentDirectory.fileNames.containsKey(newDirName)) {
-            Inode in = DISC.inodeBlock.getInodeList().get(currentDirectory.fileNames.get(newDirName));
+        if (currentDirectory.fileNames.containsValue(newDirName)) {
+            Inode in = DISC.inodeBlock.getInodeList().get(currentDirectory.getKey(newDirName));
             if (in.getFlags() == 0) {
                 System.out.println("Ne moze to tako");
                 result = false;
@@ -58,10 +58,11 @@ public class FileSystem {
                 Inode newDirInode = new Inode();
                 System.out.println(directory);
                 try {
+                    System.out.println(Arrays.toString(directory.convertToBytes()));
                     newDirInode.bytesToExtents(directory.convertToBytes(), DISC.superBlock);
                     newDirInode.writeExtents(directory.convertToBytes());
                     DISC.inodeBlock.addNodeToList(newDirInode);
-                    currentDirectory.addFile(newDirName, DISC.inodeBlock.getInodeList().indexOf(newDirInode));
+                    currentDirectory.addFile(DISC.inodeBlock.getInodeList().indexOf(newDirInode),newDirName);
                     currentInode.append(currentDirectory.convertToBytes());
 
                     DISC.inodeBlock.getInodeList().remove(currentInode);
@@ -76,10 +77,11 @@ public class FileSystem {
             Inode newDirInode = new Inode();
             System.out.println(directory);
             try {
+                System.out.println(Arrays.toString(directory.convertToBytes()));
                 newDirInode.bytesToExtents(directory.convertToBytes(), DISC.superBlock);
                 newDirInode.writeExtents(directory.convertToBytes());
                 DISC.inodeBlock.addNodeToList(newDirInode);
-                currentDirectory.addFile(newDirName, DISC.inodeBlock.getInodeList().indexOf(newDirInode));
+                currentDirectory.addFile(DISC.inodeBlock.getInodeList().indexOf(newDirInode),newDirName);
 
 
                 DISC.inodeBlock.getInodeList().remove(currentInode);
@@ -107,12 +109,12 @@ public class FileSystem {
     public boolean create(String newFilePath) {
         boolean result = false;
         System.out.println("CREATE\n" + newFilePath + "\n");
-        System.out.println("=" + parsePath(newFilePath));
+        System.out.println("=" + parsePath(newFilePath, 1));
         return false;
     }
 
-    // TODO: 5.1.2020. finish after Directory class update
-    private boolean parsePath(String newFilePath) {
+    // TODO: 5.1.2020. test after finishing create
+    private boolean parsePath(String newFilePath, int flag) {
         if (newFilePath.endsWith("/")) {
             System.out.println("Error: wrong file name" );
             return false;
@@ -126,11 +128,27 @@ public class FileSystem {
             if (path.size() > 3 || path.size() < 2) {
                 System.out.println("ERR: " + newFilePath);
                 return false;
-            } else if (path.size() == 3){
-                if (currentDirectory.fileNames.containsKey(path.get(1))) {
-                    if (currentDirectory.fileNames.containsKey(path.get(2))) {
-                        System.out.println("ERR: File exists");
-                        return false;
+            } else if (path.size() == 3 && flag == 0) {
+                System.out.println("ERR: only two level dir " + newFilePath);
+                return false;
+            } else if (path.size() == 3) {
+                if (currentDirectory.fileNames.containsValue(path.get(1))) {
+                    Directory secondLevelDir = null;
+                    try {
+                        secondLevelDir = Directory.convertFromBytes(DISC.inodeBlock.inodeList.get(1).readExents());
+                    } catch (IOException | ClassNotFoundException e) {
+                        DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
+                    }
+                    System.out.println(secondLevelDir);
+                    if (currentDirectory.fileNames.containsValue(path.get(2))) {
+                        Inode in = DISC.inodeBlock.inodeList.get(currentDirectory.getKey(path.get(2)));
+                        if (in.getFlags() == flag) {
+                            System.out.println("ERR: File exists " + newFilePath);
+                            return false;
+                        } else {
+                            System.out.println("Dir exists, but file does not " + newFilePath);
+                            return true;
+                        }
                     } else {
                         System.out.println("GOOD " + newFilePath);
                         return true;
@@ -140,9 +158,15 @@ public class FileSystem {
                     return false;
                 }
             } else {
-                if (currentDirectory.fileNames.containsKey(path.get(1))) {
-                    System.out.println("ERR: File exists");
-                    return false;
+                if (currentDirectory.fileNames.containsValue(path.get(1))) {
+                    Inode in = DISC.inodeBlock.inodeList.get(currentDirectory.getKey(path.get(1)));
+                    if (in.getFlags() == flag) {
+                        System.out.println("ERR: File exists " + newFilePath);
+                        return false;
+                    } else {
+                        System.out.println("Dir exists, but file does not " + newFilePath);
+                        return true;
+                    }
                 } else {
                     System.out.println("GOOD " + newFilePath);
                     return true;

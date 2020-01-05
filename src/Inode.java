@@ -25,6 +25,18 @@ public class Inode implements Serializable {
         this.pointers = pointers;
     }
 
+    // TODO: 5.1.2020. remove this afterwards
+    public void showMeTheMoney() {
+        for (Extent e : pointers) {
+            int i = 0;
+            for (i = 400000 - 1; i < 400300; i++) {
+                Block b = new Block();
+                DISC.read(i, b);
+                System.out.println(i + " - " + b);
+            }
+        }
+    }
+
     // endregion
 
 
@@ -156,13 +168,14 @@ public class Inode implements Serializable {
         DISC.superBlock.setStartOfFree(pointers.get(0).getStartIndex());
         for (Extent e : pointers) {
             int i = 0;
+//            showMeTheMoney();
             for (i = e.getStartIndex() - 1; i < e.getStartIndex() + e.getSize() - 1; i++) {
                 try {
                     DISC.getDisk().writeInt(i+1);
                     DISC.getDisk().writeBoolean(false);
                     Block b = new Block();
                     DISC.read(i, b);
-//                    System.out.println(i + " - " + b);
+                    System.out.println(i + " - " + b);
                 } catch (IOException ex) {
                     DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
                 }
