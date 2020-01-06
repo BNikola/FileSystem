@@ -23,6 +23,7 @@ public class SuperBlock implements Serializable {
 
     public void setStartOfFree(int startOfFree) {
         this.startOfFree = startOfFree;
+        System.out.println("$$$" + this);
     }
 
     public int getStartOfINode() {

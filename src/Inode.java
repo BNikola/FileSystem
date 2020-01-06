@@ -29,7 +29,7 @@ public class Inode implements Serializable {
     public void showMeTheMoney() {
         for (Extent e : pointers) {
             int i = 0;
-            for (i = 400000 - 1; i < 400300; i++) {
+            for (i = 400000 - 1; i < 400200; i++) {
                 Block b = new Block();
                 DISC.read(i, b);
                 System.out.println(i + " - " + b);
@@ -99,10 +99,14 @@ public class Inode implements Serializable {
     }
 
     public void bytesToExtents(byte[] data, SuperBlock superBlock) {
+        System.out.println("BTE");
+        showMeTheMoney();
+        System.out.println(DISC.superBlock);
         int written = 0;
         int sizeOfData = data.length;
         int sizeOfDataInBlocks = sizeOfData/5 + 1;
         int extentStartIndex = superBlock.getStartOfFree();
+        System.out.println("=------" + extentStartIndex);
         while (written < sizeOfDataInBlocks) {
             int extentStart = extentStartIndex;
             Block old = new Block();
@@ -164,13 +168,21 @@ public class Inode implements Serializable {
 
     private void resetExtents() {
         System.out.println("RESET EXTENTS");
+        System.out.println("-----" + DISC.superBlock);
         int oldSOF = DISC.superBlock.getStartOfFree();
         DISC.superBlock.setStartOfFree(pointers.get(0).getStartIndex());
         for (Extent e : pointers) {
             int i = 0;
-//            showMeTheMoney();
-            for (i = e.getStartIndex() - 1; i < e.getStartIndex() + e.getSize() - 1; i++) {
+            System.out.println("PRIJE resetovanja");
+            showMeTheMoney();
+            for (i = e.getStartIndex() - 1; i <= e.getStartIndex() + e.getSize() - 1; i++) {
+                System.out.println("---" + i);
                 try {
+                    if (i == e.getStartIndex() + e.getSize() - 1) {
+                        DISC.getDisk().writeInt(oldSOF);
+                        DISC.getDisk().writeBoolean(false);
+                        break;
+                    }
                     DISC.getDisk().writeInt(i+1);
                     DISC.getDisk().writeBoolean(false);
                     Block b = new Block();
@@ -180,16 +192,12 @@ public class Inode implements Serializable {
                     DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
                 }
             }
-            try {
-                DISC.getDisk().writeInt(oldSOF);
-                DISC.getDisk().writeBoolean(false);
-            } catch (IOException ex) {
-                DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
-            }
         }
     }
 
     public Inode append(byte[] newData) {
+        System.out.println("APPEND");
+        System.out.println(DISC.superBlock);
         byte [] oldData = readExents();
         this.resetExtents();
         Inode newInode = new Inode();

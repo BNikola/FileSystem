@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.logging.Level;
 
 public class Main {
@@ -6,34 +7,60 @@ public class Main {
 //        FileSystem.disc.formatDisc();
         FileSystem fs = new FileSystem();
 
+        System.out.println(DISC.inodeBlock);
+        System.out.println(DISC.superBlock);
+        fs.currentInode.showMeTheMoney();
         System.out.println(fs.currentDirectory);
-        System.out.println(fs.pwd());
+        fs.mkdir("root3");
+        System.out.println(fs.currentDirectory);
+        fs.currentInode.showMeTheMoney();
         System.out.println(DISC.inodeBlock);
         System.out.println(DISC.superBlock);
-        fs.ls();
-//        fs.mkdir("root3");
-        System.out.println(DISC.inodeBlock);
-        System.out.println(DISC.superBlock);
+
+
 
 //        DISC.inodeBlock.getInodeList().get(0).showMeTheMoney();
 
 
-        fs.create("Ovo/je/test");
-        System.out.println("-----\n");
-        fs.create("/root/Ovo/je");
-        System.out.println("-----\n");
-        fs.create("/root/Ovo/je/");
-        System.out.println("-----\n");
-        fs.create("/root/Ovo/je/test");
-        System.out.println("-----\n");
-        fs.create("/root/root2/test");
+//        fs.create("Ovo/je/test");
+//        System.out.println("-----\n");
+//        fs.create("/root/Ovo/je");
+//        System.out.println("-----\n");
+//        fs.create("/root/Ovo/je/");
+//        System.out.println("-----\n");
+//        fs.create("/root/Ovo/je/test");
+//        System.out.println("-----\n");
+//        fs.create("/root/root2/test");
         System.out.println("-----\n");
         fs.create("/root/test");
+//        fs.currentInode.showMeTheMoney();
         System.out.println("-----\n");
         fs.create("/root/root3");
-        System.out.println("-----\n");
-        fs.create("/root/root3/test");
-        System.out.println("-----\n");
+//        System.out.println("-----\n");
+//        fs.create("/root/root3/test");
+//        fs.create("/root/root3/test2");
+//        System.out.println("-----\n");
+//        fs.create("/root/root3/test");
+        fs.currentInode.showMeTheMoney();
+//        System.out.println("-----\n");
+
+        System.out.println(DISC.inodeBlock);
+        Inode inode = DISC.inodeBlock.getInodeList().get(1);
+        Inode rootDir = DISC.inodeBlock.getInodeList().get(0);
+        try {
+            Directory dir = Directory.convertFromBytes(inode.readExents());
+            Directory root = Directory.convertFromBytes(rootDir.readExents());
+            System.out.println(dir);
+            System.out.println(root);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        fs.ls();
+
 
     }
 //    public static void main(String[] args) {
