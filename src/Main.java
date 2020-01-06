@@ -4,7 +4,7 @@ import java.util.logging.Level;
 
 public class Main {
     public static void main(String[] args) {
-//        FileSystem.disc.formatDisc();
+        FileSystem.disc.formatDisc();
         FileSystem fs = new FileSystem();
 
         System.out.println(DISC.inodeBlock);
@@ -45,7 +45,7 @@ public class Main {
 //        System.out.println("-----\n");
 
         System.out.println(DISC.inodeBlock);
-        Inode inode = DISC.inodeBlock.getInodeList().get(1);
+        Inode inode = DISC.inodeBlock.getInodeList().get(3);
         Inode rootDir = DISC.inodeBlock.getInodeList().get(0);
         try {
             Directory dir = Directory.convertFromBytes(inode.readExents());

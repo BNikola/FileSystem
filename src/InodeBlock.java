@@ -42,6 +42,11 @@ public class InodeBlock implements Serializable {
         inodeList.add(inode);
         size++;
     }
+
+    public void addNodeToList(int index, Inode inode) {
+        inodeList.add(index, inode);
+        size++;
+    }
     // endregion
 
 
@@ -62,7 +67,7 @@ public class InodeBlock implements Serializable {
 
     @Override
     public String toString() {
-        return "InodeBlock: " + size + "\n" +
+        return "InodeBlock: " + size + inodeList.size() + "\n" +
                 inodeList.toString();
     }
 }

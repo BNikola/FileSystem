@@ -1,7 +1,9 @@
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.logging.Level;
 
@@ -169,9 +171,11 @@ public class Inode implements Serializable {
     private void resetExtents() {
         System.out.println("RESET EXTENTS");
         System.out.println("-----" + DISC.superBlock);
-        int oldSOF = DISC.superBlock.getStartOfFree();
-        DISC.superBlock.setStartOfFree(pointers.get(0).getStartIndex());
+//        int oldSOF = DISC.superBlock.getStartOfFree();
+//        DISC.superBlock.setStartOfFree(pointers.get(0).getStartIndex());
         for (Extent e : pointers) {
+            int oldSOF = DISC.superBlock.getStartOfFree();
+            DISC.superBlock.setStartOfFree(e.getStartIndex());
             int i = 0;
             System.out.println("PRIJE resetovanja");
             showMeTheMoney();
@@ -215,6 +219,7 @@ public class Inode implements Serializable {
 //                ", fileSize=" + fileSize +
                 ", numberOfExtents=" + pointers.size() +
                 ", pointer=" + pointers +
+                ", time=" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date(timestamp)) +
                 '}';
     }
 }

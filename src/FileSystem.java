@@ -42,6 +42,7 @@ public class FileSystem {
     }
 
     // TODO: 5.1.2020. change using parsePath
+    // TODO: 6.1.2020. add remove inode method to InodeBlock and replace it here
     public boolean mkdir(String newDirName) {
         boolean result = false;
         if (!currentDirectory.name.equals("root")) {
@@ -66,7 +67,8 @@ public class FileSystem {
                     currentInode.append(currentDirectory.convertToBytes());
 
                     DISC.inodeBlock.getInodeList().remove(currentInode);
-                    DISC.inodeBlock.getInodeList().add(0, currentInode);
+//                    DISC.inodeBlock.getInodeList().add(0, currentInode);
+                    DISC.inodeBlock.addNodeToList(0, currentInode);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -87,7 +89,8 @@ public class FileSystem {
                 currentInode.append(currentDirectory.convertToBytes());
 
                 DISC.inodeBlock.getInodeList().remove(currentInode);
-                DISC.inodeBlock.getInodeList().add(0, currentInode.append(currentDirectory.convertToBytes()));
+//                DISC.inodeBlock.getInodeList().add(0, currentInode.append(currentDirectory.convertToBytes()));
+                DISC.inodeBlock.addNodeToList(0, currentInode.append(currentDirectory.convertToBytes()));
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -119,6 +122,13 @@ public class FileSystem {
             DISC.inodeBlock.addNodeToList(newFileInode);
 
             if (path.size() == 2) {
+                try {
+                    System.out.println("LEVEL 2: ");
+                    System.out.println(currentDirectory);
+                    currentDirectory = Directory.convertFromBytes(DISC.inodeBlock.inodeList.get(0).readExents());
+                } catch (IOException | ClassNotFoundException e) {
+                    DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
+                }
                 System.out.println(currentDirectory);
                 newFileInode.writeExtents(new byte[5]);
                 currentDirectory.addFile(DISC.inodeBlock.getInodeList().indexOf(newFileInode), path.get(1));
@@ -126,7 +136,8 @@ public class FileSystem {
 
                 DISC.inodeBlock.getInodeList().remove(currentInode);
                 try {
-                    DISC.inodeBlock.getInodeList().add(0, currentInode.append(currentDirectory.convertToBytes()));
+//                    DISC.inodeBlock.getInodeList().add(0, currentInode.append(currentDirectory.convertToBytes()));
+                    DISC.inodeBlock.addNodeToList(0, currentInode.append(currentDirectory.convertToBytes()));
                 } catch (IOException e) {
                     DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
                 }
@@ -145,7 +156,8 @@ public class FileSystem {
                 DISC.inodeBlock.getInodeList().remove(secondInode);
                 try {
                     int index = currentDirectory.getKey(path.get(1));
-                    DISC.inodeBlock.getInodeList().add(index, secondInode.append(secondLevelDir.convertToBytes()));
+//                    DISC.inodeBlock.getInodeList().add(index, secondInode.append(secondLevelDir.convertToBytes()));
+                    DISC.inodeBlock.addNodeToList(index, secondInode.append(secondLevelDir.convertToBytes()));
                 } catch (IOException e) {
                     DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
                 }
