@@ -47,6 +47,16 @@ public class InodeBlock implements Serializable {
         inodeList.add(index, inode);
         size++;
     }
+
+    public void removeNodeFromList(Inode inode) {
+        inodeList.remove(inode);
+        size--;
+    }
+
+    public void removeNodeFromList(int index) {
+        inodeList.remove(index);
+        size--;
+    }
     // endregion
 
 

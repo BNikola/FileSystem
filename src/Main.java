@@ -38,14 +38,15 @@ public class Main {
         fs.create("/root/root3");
 //        System.out.println("-----\n");
 //        fs.create("/root/root3/test");
+        fs.create("/root/root3/test2");
 //        fs.create("/root/root3/test2");
 //        System.out.println("-----\n");
-//        fs.create("/root/root3/test");
+        fs.create("/root/root3/test");
         fs.currentInode.showMeTheMoney();
 //        System.out.println("-----\n");
 
         System.out.println(DISC.inodeBlock);
-        Inode inode = DISC.inodeBlock.getInodeList().get(3);
+        Inode inode = DISC.inodeBlock.getInodeList().get(1);
         Inode rootDir = DISC.inodeBlock.getInodeList().get(0);
         try {
             Directory dir = Directory.convertFromBytes(inode.readExents());

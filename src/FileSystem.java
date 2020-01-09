@@ -66,8 +66,10 @@ public class FileSystem {
                     currentDirectory.addFile(DISC.inodeBlock.getInodeList().indexOf(newDirInode),newDirName);
                     currentInode.append(currentDirectory.convertToBytes());
 
-                    DISC.inodeBlock.getInodeList().remove(currentInode);
+//                    DISC.inodeBlock.getInodeList().remove(currentInode);
 //                    DISC.inodeBlock.getInodeList().add(0, currentInode);
+//                    DISC.inodeBlock.addNodeToList(0, currentInode);
+                    DISC.inodeBlock.removeNodeFromList(0);
                     DISC.inodeBlock.addNodeToList(0, currentInode);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -83,13 +85,14 @@ public class FileSystem {
                 newDirInode.bytesToExtents(directory.convertToBytes(), DISC.superBlock);
                 newDirInode.writeExtents(directory.convertToBytes());
                 System.out.println("After writing the dir");
-                currentInode.showMeTheMoney();
                 DISC.inodeBlock.addNodeToList(newDirInode);
                 currentDirectory.addFile(DISC.inodeBlock.getInodeList().indexOf(newDirInode),newDirName);
                 currentInode.append(currentDirectory.convertToBytes());
 
-                DISC.inodeBlock.getInodeList().remove(currentInode);
+//                DISC.inodeBlock.getInodeList().remove(currentInode);
 //                DISC.inodeBlock.getInodeList().add(0, currentInode.append(currentDirectory.convertToBytes()));
+//                DISC.inodeBlock.addNodeToList(0, currentInode.append(currentDirectory.convertToBytes()));
+                DISC.inodeBlock.removeNodeFromList(0);
                 DISC.inodeBlock.addNodeToList(0, currentInode.append(currentDirectory.convertToBytes()));
 
             } catch (IOException e) {
@@ -134,17 +137,24 @@ public class FileSystem {
                 currentDirectory.addFile(DISC.inodeBlock.getInodeList().indexOf(newFileInode), path.get(1));
                 System.out.println(currentDirectory);
 
-                DISC.inodeBlock.getInodeList().remove(currentInode);
+//                DISC.inodeBlock.getInodeList().remove(currentInode);
+                System.out.println("CREATE REMOVE 1");
+                System.out.println(DISC.inodeBlock.inodeList);
+                DISC.inodeBlock.removeNodeFromList(0);
+                System.out.println(DISC.inodeBlock.inodeList);
                 try {
 //                    DISC.inodeBlock.getInodeList().add(0, currentInode.append(currentDirectory.convertToBytes()));
                     DISC.inodeBlock.addNodeToList(0, currentInode.append(currentDirectory.convertToBytes()));
                 } catch (IOException e) {
                     DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
                 }
+                System.out.println(DISC.inodeBlock.inodeList);
+
             } else {
                 Directory secondLevelDir = null;
+                Integer index = currentDirectory.getKey(path.get(1));
                 try {
-                    secondLevelDir = Directory.convertFromBytes(DISC.inodeBlock.inodeList.get(currentDirectory.getKey(path.get(1))).readExents());
+                    secondLevelDir = Directory.convertFromBytes(DISC.inodeBlock.inodeList.get(index).readExents());
                 } catch (IOException | ClassNotFoundException e) {
                     DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
                 }
@@ -152,10 +162,13 @@ public class FileSystem {
                 secondLevelDir.addFile(DISC.inodeBlock.getInodeList().indexOf(newFileInode), path.get(2));
                 System.out.println(secondLevelDir);
 
-                Inode secondInode = DISC.inodeBlock.getInodeList().get(currentDirectory.getKey(path.get(1)));
-                DISC.inodeBlock.getInodeList().remove(secondInode);
+                Inode secondInode = DISC.inodeBlock.getInodeList().get(index);
+//                DISC.inodeBlock.getInodeList().remove(secondInode);
+                System.out.println("CREATE REMOVE");
+                System.out.println(DISC.inodeBlock.inodeList);
+                DISC.inodeBlock.removeNodeFromList(index);
+                System.out.println(DISC.inodeBlock.inodeList);
                 try {
-                    int index = currentDirectory.getKey(path.get(1));
 //                    DISC.inodeBlock.getInodeList().add(index, secondInode.append(secondLevelDir.convertToBytes()));
                     DISC.inodeBlock.addNodeToList(index, secondInode.append(secondLevelDir.convertToBytes()));
                 } catch (IOException e) {
@@ -171,6 +184,7 @@ public class FileSystem {
             }
             return true;
         } else {
+            System.out.println("NE VALJAAAA");
             return false;
         }
     }
@@ -195,6 +209,7 @@ public class FileSystem {
                 return false;
             } else if (path.size() == 3) {
                 if (currentDirectory.fileNames.containsValue(path.get(1))) {
+                    // TODO: 9.1.2020. check if it is a dir
                     Directory secondLevelDir = null;
                     try {
                         secondLevelDir = Directory.convertFromBytes(DISC.inodeBlock.inodeList.get(1).readExents());

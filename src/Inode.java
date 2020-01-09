@@ -31,7 +31,7 @@ public class Inode implements Serializable {
     public void showMeTheMoney() {
         for (Extent e : pointers) {
             int i = 0;
-            for (i = 400000 - 1; i < 400200; i++) {
+            for (i = 400000 - 1; i < 400300; i++) {
                 Block b = new Block();
                 DISC.read(i, b);
                 System.out.println(i + " - " + b);
@@ -173,11 +173,16 @@ public class Inode implements Serializable {
         System.out.println("-----" + DISC.superBlock);
 //        int oldSOF = DISC.superBlock.getStartOfFree();
 //        DISC.superBlock.setStartOfFree(pointers.get(0).getStartIndex());
+        System.out.println(pointers);
         for (Extent e : pointers) {
+            System.out.println("SUPER B");
+            System.out.println(DISC.superBlock);
             int oldSOF = DISC.superBlock.getStartOfFree();
             DISC.superBlock.setStartOfFree(e.getStartIndex());
+            System.out.println(DISC.superBlock);
             int i = 0;
             System.out.println("PRIJE resetovanja");
+            System.out.println(pointers);
             showMeTheMoney();
             for (i = e.getStartIndex() - 1; i <= e.getStartIndex() + e.getSize() - 1; i++) {
                 System.out.println("---" + i);
