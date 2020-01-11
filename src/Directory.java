@@ -6,16 +6,11 @@ import java.util.Map;
 
 public class Directory implements Serializable {
     public HashMap<Integer, String> fileNames = new HashMap<>();     // hash map: nameOfFile:inodeNumber
-    public List<Integer> fileNamesLengths = new ArrayList<>();  // when reading, read how many files are in hash map
-    public int filesLength;
     public String name;
-    public int nameLength;
     private static final long serialVersionUID = 1L;
 
     public Directory(String name) {
         this.name = name;
-        this.nameLength = name.length();
-        this.filesLength = fileNames.size();
     }
 
     public boolean addFile(Integer iNode, String newFileName) {
@@ -23,8 +18,6 @@ public class Directory implements Serializable {
             return false;
         } else {
             fileNames.put(iNode, newFileName);
-            filesLength++;
-            fileNamesLengths.add(newFileName.length());
             return true;
         }
     }
@@ -48,20 +41,25 @@ public class Directory implements Serializable {
         return new ArrayList<>(fileNames.values());
     }
 
-    public Integer getKey(String value) {
-        return fileNames.entrySet()
-                .stream()
-                .filter(entry -> value.equals(entry.getValue()))
-                .map(Map.Entry::getKey)
-                .findFirst().get();
+    public Integer getKey(String value, int flag) {
+        for (Map.Entry<Integer, String> e : fileNames.entrySet())
+            if (value.equals(e.getValue())) {
+                if (flag == DISC.inodeBlock.getInodeList().get(e.getKey()).getFlags()) {
+                    return e.getKey();
+                }
+            }
+        return -1;
+    }
+
+    public void rename(Integer index, String oldName, String newName) {
+        System.out.println("DIR RENAME");
+        System.out.println(index + " " + oldName + " " + newName);
+        fileNames.replace(index, oldName, newName);
     }
 
     @Override
     public String toString() {
         return "Directory{" +
-                "nameLength=" + nameLength +
-                ", filesLength=" + filesLength +
-                ", fileNamesLengths=" + fileNamesLengths +
                 ", name='" + name + '\'' +
                 ", files= " + fileNames +
                 '}';

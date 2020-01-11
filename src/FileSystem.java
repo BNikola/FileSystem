@@ -1,7 +1,6 @@
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.logging.Level;
 
 public class FileSystem {
@@ -49,7 +48,7 @@ public class FileSystem {
             return false;
         }
         if (currentDirectory.fileNames.containsValue(newDirName)) {
-            Inode in = DISC.inodeBlock.getInodeList().get(currentDirectory.getKey(newDirName));
+            Inode in = DISC.inodeBlock.getInodeList().get(currentDirectory.getKey(newDirName, 0));
             if (in.getFlags() == 0) {
                 System.out.println("The directory already exists");
                 result = false;
@@ -116,7 +115,7 @@ public class FileSystem {
     // TODO: 5.1.2020. finish after Directory class update
     public boolean create(String newFilePath) {
         boolean result = false;
-        if (parsePath(newFilePath, 1)) {
+        if (parsePath(newFilePath, 1) == 0) {
             ArrayList<String> path = new ArrayList<>(Arrays.asList(newFilePath.split("/")));
             path.remove(0);
             Inode newFileInode = new Inode();
@@ -152,7 +151,7 @@ public class FileSystem {
 
             } else {
                 Directory secondLevelDir = null;
-                Integer index = currentDirectory.getKey(path.get(1));
+                Integer index = currentDirectory.getKey(path.get(1), 0);
                 try {
                     secondLevelDir = Directory.convertFromBytes(DISC.inodeBlock.inodeList.get(index).readExents());
                 } catch (IOException | ClassNotFoundException e) {
@@ -189,27 +188,94 @@ public class FileSystem {
         }
     }
 
+
+    public boolean rename(String oldName, String newName, int flag) {
+        if (oldName.split("/").length == 2 || oldName.split("/").length > 4) {
+            return false;
+        }
+        if (oldName.equals(newName)) {
+            return true;
+        }
+        if (oldName.split("/").length != newName.split("/").length) {
+            return false;
+        }
+        if (parsePath(oldName, flag) == 1) {
+            if (parsePath(newName, flag) == 0) {
+                ArrayList<String> oldPath = new ArrayList<>(Arrays.asList(oldName.split("/")));
+                ArrayList<String> newPath = new ArrayList<>(Arrays.asList(newName.split("/")));
+                oldPath.remove(0);
+                newPath.remove(0);
+
+                if (oldPath.size() == 2) {
+                    currentDirectory.rename(currentDirectory.getKey(oldPath.get(1), flag), oldPath.get(1), newPath.get(1));
+
+                    DISC.inodeBlock.removeNodeFromList(0);
+                    System.out.println(DISC.inodeBlock.inodeList);
+                    try {
+                        DISC.inodeBlock.addNodeToList(0, currentInode.append(currentDirectory.convertToBytes()));
+                    } catch (IOException e) {
+                        DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
+                    }
+                } else {
+                    Directory dir = null;
+                    Integer index = currentDirectory.getKey(oldPath.get(1), 0);
+                    try {
+                        dir = Directory.convertFromBytes(DISC.inodeBlock.getInodeList().get(index).readExents());
+                    } catch (IOException | ClassNotFoundException e) {
+                        DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
+                    }
+                    dir.rename(dir.getKey(oldPath.get(2), flag), oldPath.get(2), newPath.get(2));
+
+                    Inode secondInode = DISC.inodeBlock.getInodeList().get(index);
+                    DISC.inodeBlock.removeNodeFromList(index);
+                    try {
+                        DISC.inodeBlock.addNodeToList(index, secondInode.append(dir.convertToBytes()));
+                    } catch (IOException e) {
+                        DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
+                    }
+                }
+                try {
+                    disc.writeHeader(DISC.superBlock, DISC.inodeBlock);
+                } catch (IOException e) {
+                    DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
+                }
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @param newFilePath
+     * @param flag
+     * @return
+     * -1   wrong path
+     * 0    good
+     * 1    file exists
+     */
     // TODO: 5.1.2020. test after finishing create
-    private boolean parsePath(String newFilePath, int flag) {
+    public int parsePath(String newFilePath, int flag) {
         if (newFilePath.endsWith("/")) {
             System.out.println("Error: wrong file name" );
-            return false;
+            return -1;
         }else if (!newFilePath.startsWith("/root")) {
             System.out.println("Ne pocinje sa root");
-            return false;
+            return -1;
         } else {
             ArrayList<String> path = new ArrayList<>(Arrays.asList(newFilePath.split("/")));
             path.remove(0);
             System.out.println(path);
             if (path.size() > 3 || path.size() < 2) {
                 System.out.println("ERR: " + newFilePath);
-                return false;
+                return -1;
             } else if (path.size() == 3 && flag == 0) {
                 System.out.println("ERR: only two level dir " + newFilePath);
-                return false;
+                return -1;
             } else if (path.size() == 3) {
                 if (currentDirectory.fileNames.containsValue(path.get(1))) {
-                    // TODO: 9.1.2020. check if it is a dir
                     Directory secondLevelDir = null;
                     try {
                         secondLevelDir = Directory.convertFromBytes(DISC.inodeBlock.inodeList.get(1).readExents());
@@ -218,37 +284,27 @@ public class FileSystem {
                     }
                     System.out.println(secondLevelDir);
                     if (secondLevelDir.fileNames.containsValue(path.get(2))) {
-                        Inode in = DISC.inodeBlock.inodeList.get(secondLevelDir.getKey(path.get(2)));
-                        System.out.println(in);
-                        // TODO: 5.1.2020. check this
-                        if (in.getFlags() == flag) {
-                            System.out.println("ERR: File exists " + newFilePath);
-                            return false;
-                        } else {
-                            System.out.println("Dir exists, but file does not " + newFilePath);
-                            return true;
-                        }
+                        System.out.println("ERR: File exists");
+                        return 1;
                     } else {
                         System.out.println("GOOD " + newFilePath);
-                        return true;
+                        return 0;
                     }
                 } else {
                     System.out.println("ERR: Directory " + path.get(1) + " does not exist");
-                    return false;
+                    return -1;
                 }
             } else {
                 if (currentDirectory.fileNames.containsValue(path.get(1))) {
-                    Inode in = DISC.inodeBlock.inodeList.get(currentDirectory.getKey(path.get(1)));
-                    if (in.getFlags() == flag) {
-                        System.out.println("ERR: File exists " + newFilePath);
-                        return false;
+                    Integer index = currentDirectory.getKey(path.get(1), flag);
+                    if (index == -1) {
+                        return 0;
                     } else {
-                        System.out.println("Dir exists, but file does not " + newFilePath);
-                        return true;
+                        return 1;
                     }
                 } else {
                     System.out.println("GOOD " + newFilePath);
-                    return true;
+                    return 0;
                 }
             }
         }

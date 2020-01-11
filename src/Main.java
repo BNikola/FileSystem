@@ -13,37 +13,21 @@ public class Main {
         System.out.println(fs.currentDirectory);
         fs.mkdir("root3");
         System.out.println(fs.currentDirectory);
-        fs.currentInode.showMeTheMoney();
+//        fs.currentInode.showMeTheMoney();
         System.out.println(DISC.inodeBlock);
         System.out.println(DISC.superBlock);
 
-
-
-//        DISC.inodeBlock.getInodeList().get(0).showMeTheMoney();
-
-
-//        fs.create("Ovo/je/test");
 //        System.out.println("-----\n");
-//        fs.create("/root/Ovo/je");
+//        fs.create("/root/test");
 //        System.out.println("-----\n");
-//        fs.create("/root/Ovo/je/");
-//        System.out.println("-----\n");
-//        fs.create("/root/Ovo/je/test");
-//        System.out.println("-----\n");
-//        fs.create("/root/root2/test");
-        System.out.println("-----\n");
-        fs.create("/root/test");
-//        fs.currentInode.showMeTheMoney();
-        System.out.println("-----\n");
         fs.create("/root/root3");
-//        System.out.println("-----\n");
-//        fs.create("/root/root3/test");
+        fs.create("/root/root2");
         fs.create("/root/root3/test2");
-//        fs.create("/root/root3/test2");
-//        System.out.println("-----\n");
+        System.out.println("-----TET@");
         fs.create("/root/root3/test");
-        fs.currentInode.showMeTheMoney();
-//        System.out.println("-----\n");
+        fs.create("/root/root3/test123");
+
+        fs.rename("/root/root3", "/root/root32", 0);
 
         System.out.println(DISC.inodeBlock);
         Inode inode = DISC.inodeBlock.getInodeList().get(1);
