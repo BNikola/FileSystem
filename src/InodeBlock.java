@@ -43,14 +43,9 @@ public class InodeBlock implements Serializable {
         size++;
     }
 
-    public void addNodeToList(int index, Inode inode) {
+    public void addNodeToList(Integer index, Inode inode) {
         inodeList.add(index, inode);
         size++;
-    }
-
-    public void removeNodeFromList(Inode inode) {
-        inodeList.remove(inode);
-        size--;
     }
 
     public void removeNodeFromList(int index) {

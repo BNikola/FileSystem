@@ -27,6 +27,13 @@ public class Inode implements Serializable {
         this.pointers = pointers;
     }
 
+    public Inode(Inode inode) {
+        this.flags = inode.flags;
+        this.fileSize = inode.fileSize;
+        this.timestamp = System.currentTimeMillis();
+        this.pointers = new LinkedList<>();
+    }
+
     // TODO: 5.1.2020. remove this afterwards
     public void showMeTheMoney() {
         for (Extent e : pointers) {
@@ -106,7 +113,8 @@ public class Inode implements Serializable {
         System.out.println(DISC.superBlock);
         int written = 0;
         int sizeOfData = data.length;
-        int sizeOfDataInBlocks = sizeOfData/5 + 1;
+        // TODO: 13.1.2020. check this at the end!
+        int sizeOfDataInBlocks = (sizeOfData%5 == 0)? sizeOfData/5:sizeOfData/5 + 1;
         int extentStartIndex = superBlock.getStartOfFree();
         System.out.println("=------" + extentStartIndex);
         while (written < sizeOfDataInBlocks) {
@@ -157,7 +165,7 @@ public class Inode implements Serializable {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         for (Extent e : pointers) {
             byte[] buffer = new byte[e.getSize() * 5];
-            read += size();
+            read += e.getSize();
             DISC.read(e.getStartIndex(), buffer);
             try {
                 baos.write(buffer);
@@ -223,7 +231,7 @@ public class Inode implements Serializable {
                 "flags=" + flags +
 //                ", fileSize=" + fileSize +
                 ", numberOfExtents=" + pointers.size() +
-                ", pointer=" + pointers +
+                ", pointers=" + pointers +
                 ", time=" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date(timestamp)) +
                 '}';
     }

@@ -1,11 +1,10 @@
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Directory implements Serializable {
-    public HashMap<Integer, String> fileNames = new HashMap<>();     // hash map: nameOfFile:inodeNumber
+    public HashMap<String, Integer> fileNames = new HashMap<>();     // hash map: nameOfFile:inodeNumber
     public String name;
     private static final long serialVersionUID = 1L;
 
@@ -14,10 +13,10 @@ public class Directory implements Serializable {
     }
 
     public boolean addFile(Integer iNode, String newFileName) {
-        if (fileNames.containsKey(iNode)) {
+        if (fileNames.containsKey(newFileName)) {
             return false;
         } else {
-            fileNames.put(iNode, newFileName);
+            fileNames.put(newFileName, iNode);
             return true;
         }
     }
@@ -38,23 +37,28 @@ public class Directory implements Serializable {
     }
 
     public ArrayList<String> listFileNames() {
-        return new ArrayList<>(fileNames.values());
+        return new ArrayList<>(fileNames.keySet());
     }
 
-    public Integer getKey(String value, int flag) {
-        for (Map.Entry<Integer, String> e : fileNames.entrySet())
-            if (value.equals(e.getValue())) {
-                if (flag == DISC.inodeBlock.getInodeList().get(e.getKey()).getFlags()) {
-                    return e.getKey();
-                }
-            }
-        return -1;
-    }
+    // TODO: 13.1.2020. remove excess code
 
-    public void rename(Integer index, String oldName, String newName) {
-        System.out.println("DIR RENAME");
-        System.out.println(index + " " + oldName + " " + newName);
-        fileNames.replace(index, oldName, newName);
+//    public String getKey(Integer value, int flag) {
+//        for (Map.Entry<String, Integer> e : fileNames.entrySet())
+//            if (value.equals(e.getValue())) {
+//                if (flag == DISC.inodeBlock.getInodeList().get(e.getKey()).getFlags()) {
+//                    return e.getKey();
+//                }
+//            }
+//        return -1;
+//    }
+
+    public void rename(String oldName, String newName) {
+//        System.out.println("DIR RENAME");
+//        System.out.println(index + " " + oldName + " " + newName);
+//        fileNames.replace(index, oldName, newName);
+        Integer inode = fileNames.remove(oldName);
+        fileNames.put(newName, inode);
+
     }
 
     @Override

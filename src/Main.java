@@ -1,6 +1,4 @@
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.logging.Level;
 
 public class Main {
     public static void main(String[] args) {
@@ -11,23 +9,33 @@ public class Main {
         System.out.println(DISC.superBlock);
         fs.currentInode.showMeTheMoney();
         System.out.println(fs.currentDirectory);
-        fs.mkdir("root3");
+//        fs.mkdir("root3");
+        fs.mkdir("/root/root3");
+        fs.mkdir("/root/testic123");
         System.out.println(fs.currentDirectory);
 //        fs.currentInode.showMeTheMoney();
         System.out.println(DISC.inodeBlock);
         System.out.println(DISC.superBlock);
 
 //        System.out.println("-----\n");
-//        fs.create("/root/test");
+        fs.create("/root/test");
 //        System.out.println("-----\n");
         fs.create("/root/root3");
         fs.create("/root/root2");
-        fs.create("/root/root3/test2");
-        System.out.println("-----TET@");
+        fs.create("/root/testic123/ttt");
+//        fs.create("/root/root3/test2");
+//        System.out.println("-----TET@");
         fs.create("/root/root3/test");
-        fs.create("/root/root3/test123");
+//        fs.create("/root/root3/test123");
+//
 
-        fs.rename("/root/root3", "/root/root32", 0);
+        fs.rename("/root/root3", "/root/root32");
+        fs.rename("/root/root3", "/root/root32");
+        fs.cp("/root/root2", "/root/root32/root2");
+
+        fs.cp("/root/testic123/ttt", "/root/root32/ttt");
+        fs.cp("/root/root32/ttt", "/root/ttt");
+
 
         System.out.println(DISC.inodeBlock);
         Inode inode = DISC.inodeBlock.getInodeList().get(1);
