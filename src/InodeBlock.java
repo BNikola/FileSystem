@@ -1,9 +1,12 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class InodeBlock implements Serializable {
-    public List<Inode> inodeList = new ArrayList<>();
+    //    public List<Inode> inodeList = new ArrayList<>();
+    public HashMap<Integer, Inode> inodeList = new HashMap<>();
+    public static Integer index = 0;
+    public int number = 0;
     public int size; // number of i nodes
     private static final long serialVersionUID = 1L;
 
@@ -20,11 +23,11 @@ public class InodeBlock implements Serializable {
 
     // region Getters and Setters
 
-    public List<Inode> getInodeList() {
+    public HashMap<Integer, Inode> getInodeList() {
         return inodeList;
     }
 
-    public void setInodeList(List<Inode> inodeList) {
+    public void setInodeList(HashMap<Integer, Inode> inodeList) {
         this.inodeList = inodeList;
     }
 
@@ -39,18 +42,35 @@ public class InodeBlock implements Serializable {
 
     // region Methods
     public void addNodeToList(Inode inode) {
-        inodeList.add(inode);
+        System.out.println("ADDING INODE: " + index);
+        inodeList.put(index, inode);
+        index++;
+        number = index;
         size++;
     }
 
     public void addNodeToList(Integer index, Inode inode) {
-        inodeList.add(index, inode);
-        size++;
+        if (!inodeList.containsKey(index)) {
+            System.out.println("ADDING INODE: " + index);
+            inodeList.put(index, inode);
+            size++;
+        } else {
+            System.out.println("ERR ADDING: " + index + "\n" + inode);
+        }
     }
 
-    public void removeNodeFromList(int index) {
+    public void removeNodeFromList(Integer index) {
+        System.out.println("REMOVING NODE: " + index);
         inodeList.remove(index);
         size--;
+    }
+
+    public Integer getKey(Inode value) {
+        for (Map.Entry<Integer, Inode> e : inodeList.entrySet())
+            if (value.equals(e.getValue())) {
+                return e.getKey();
+            }
+        return -1;
     }
     // endregion
 

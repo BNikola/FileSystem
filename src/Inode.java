@@ -2,47 +2,49 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.logging.Level;
 
 public class Inode implements Serializable {
     private int flags;
     private int fileSize;
-    private LinkedList<Extent> pointers;
+    private ArrayList<Extent> pointers;
     private long timestamp;
     private static final long serialVersionUID = 1L;
-// TODO: 3.1.2020. remove excess code nad prints
 
     // region Constructor
     public Inode() {
-        pointers = new LinkedList<>();
+        pointers = new ArrayList<>();
         timestamp = System.currentTimeMillis();
     }
 
-    public Inode(int flags, int fileSize, LinkedList<Extent> pointers) {
+    public Inode(int flags) {
+        this.pointers = new ArrayList<>();
+        this.flags = flags;
+        timestamp = System.currentTimeMillis();
+    }
+
+    public Inode(int flags, int fileSize, ArrayList<Extent> pointers) {
         this.flags = flags;
         this.fileSize = fileSize;
         this.pointers = pointers;
+        timestamp = System.currentTimeMillis();
     }
 
     public Inode(Inode inode) {
         this.flags = inode.flags;
         this.fileSize = inode.fileSize;
         this.timestamp = System.currentTimeMillis();
-        this.pointers = new LinkedList<>();
+        this.pointers = new ArrayList<>();
     }
 
     // TODO: 5.1.2020. remove this afterwards
     public void showMeTheMoney() {
-        for (Extent e : pointers) {
-            int i = 0;
-            for (i = 400000 - 1; i < 400300; i++) {
-                Block b = new Block();
-                DISC.read(i, b);
-                System.out.println(i + " - " + b);
-            }
+        int i = 0;
+        for (i = 400000; i < 406000; i++) {
+            Block b = new Block();
+            DISC.read(i, b);
+            System.out.println(i + " - " + b);
         }
     }
 
@@ -74,11 +76,11 @@ public class Inode implements Serializable {
     public void setNumberOfExtents(int numberOfExtents) {
     }
 
-    public LinkedList<Extent> getPointers() {
+    public ArrayList<Extent> getPointers() {
         return pointers;
     }
 
-    public void setPointers(LinkedList<Extent> pointers) {
+    public void setPointers(ArrayList<Extent> pointers) {
         this.pointers = pointers;
     }
 
@@ -86,7 +88,6 @@ public class Inode implements Serializable {
         return timestamp;
     }
 
-    // TODO: 8.11.2019. consider removing this
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
@@ -96,11 +97,14 @@ public class Inode implements Serializable {
 
     public void addPointer(Extent extent) {
         pointers.add(extent);
+        Collections.sort(pointers, Comparator.comparing(Extent::getStartIndex));
+
     }
 
     // returns size in bytes
     public double size() {
         double size = 0;
+        Collections.sort(pointers, Comparator.comparing(Extent::getStartIndex));
         for (Extent e : pointers) {
             size += e.getSize();
         }
@@ -108,15 +112,10 @@ public class Inode implements Serializable {
     }
 
     public void bytesToExtents(byte[] data, SuperBlock superBlock) {
-        System.out.println("BTE");
-        showMeTheMoney();
-        System.out.println(DISC.superBlock);
         int written = 0;
         int sizeOfData = data.length;
-        // TODO: 13.1.2020. check this at the end!
         int sizeOfDataInBlocks = (sizeOfData%5 == 0)? sizeOfData/5:sizeOfData/5 + 1;
         int extentStartIndex = superBlock.getStartOfFree();
-        System.out.println("=------" + extentStartIndex);
         while (written < sizeOfDataInBlocks) {
             int extentStart = extentStartIndex;
             Block old = new Block();
@@ -129,21 +128,17 @@ public class Inode implements Serializable {
                     written++;
                     extentSize++;
                     if (written == sizeOfDataInBlocks) {
-                        System.out.println("velicina dosegnuta");
                         Extent extent = new Extent(extentStart, extentSize);
                         this.addPointer(extent);
-                        System.out.println(extent);
                     }
                 } else {
                     written++;
                     extentSize++;
                     i = old.getNext();
-                    System.out.println("nije sljedeci");
                     Extent extent = new Extent(extentStart, extentSize);
                     this.addPointer(extent);
                     extentStart = i;
                     extentSize = 0;
-                    System.out.println(extent);
                 }
             }
         }
@@ -151,6 +146,7 @@ public class Inode implements Serializable {
 
     public void writeExtents(byte[] data) {
         int written = 0;
+        Collections.sort(pointers, Comparator.comparing(Extent::getStartIndex));
         for (Extent e : pointers) {
             // 5 is the size of a block
             int size = e.getSize() * 5;
@@ -162,6 +158,7 @@ public class Inode implements Serializable {
 
     public byte[] readExents() {
         int read = 0;
+        Collections.sort(pointers, Comparator.comparing(Extent::getStartIndex));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         for (Extent e : pointers) {
             byte[] buffer = new byte[e.getSize() * 5];
@@ -176,54 +173,54 @@ public class Inode implements Serializable {
         return baos.toByteArray();
     }
 
-    private void resetExtents() {
-        System.out.println("RESET EXTENTS");
-        System.out.println("-----" + DISC.superBlock);
-//        int oldSOF = DISC.superBlock.getStartOfFree();
-//        DISC.superBlock.setStartOfFree(pointers.get(0).getStartIndex());
-        System.out.println(pointers);
-        for (Extent e : pointers) {
-            System.out.println("SUPER B");
-            System.out.println(DISC.superBlock);
-            int oldSOF = DISC.superBlock.getStartOfFree();
-            DISC.superBlock.setStartOfFree(e.getStartIndex());
-            System.out.println(DISC.superBlock);
-            int i = 0;
-            System.out.println("PRIJE resetovanja");
-            System.out.println(pointers);
-            showMeTheMoney();
-            for (i = e.getStartIndex() - 1; i <= e.getStartIndex() + e.getSize() - 1; i++) {
-                System.out.println("---" + i);
+    public void resetExtents() {
+        Integer oldSOF = DISC.superBlock.getStartOfFree();
+        for (int i = 0; i < pointers.size(); i++) {
+            Extent extent = pointers.get(i);
+            DISC.superBlock.setStartOfFree(extent.getStartIndex());
+
+            int j = 0;
+            for (j = extent.getStartIndex(); j <= extent.getStartIndex() + extent.getSize() - 1; j++) {
                 try {
-                    if (i == e.getStartIndex() + e.getSize() - 1) {
-                        DISC.getDisk().writeInt(oldSOF);
+                    if (j == extent.getStartIndex() + extent.getSize() - 1) {
+//                        showMeTheMoney(extent);
+                        if (i == pointers.size() - 1) {
+                            DISC.getDisk().seek(j*5);
+                            DISC.getDisk().writeInt(oldSOF);
+                            DISC.getDisk().writeBoolean(false);
+//                            showMeTheMoney(extent);
+//                            break;
+                        } else {
+                            DISC.getDisk().seek(j*5);
+                            DISC.getDisk().writeInt(pointers.get(i+1).getStartIndex());
+                            DISC.getDisk().writeBoolean(false);
+                            break;
+                        }
+                    } else {
+                        DISC.getDisk().seek(j*5);
+                        DISC.getDisk().writeInt(j+1);
                         DISC.getDisk().writeBoolean(false);
-                        break;
+                        Block b = new Block();
+                        DISC.read(j, b);
                     }
-                    DISC.getDisk().writeInt(i+1);
-                    DISC.getDisk().writeBoolean(false);
-                    Block b = new Block();
-                    DISC.read(i, b);
-                    System.out.println(i + " - " + b);
-                } catch (IOException ex) {
+                } catch (IOException e) {
                     DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
                 }
             }
+//            showMeTheMoney();
+
         }
+        DISC.superBlock.setStartOfFree(pointers.get(0).getStartIndex());
     }
 
     public Inode append(byte[] newData) {
-        System.out.println("APPEND");
-        System.out.println(DISC.superBlock);
         byte [] oldData = readExents();
         this.resetExtents();
-        Inode newInode = new Inode();
+        Inode newInode = new Inode(this);
         newInode.bytesToExtents(newData, DISC.superBlock);
         newInode.writeExtents(newData);
         return newInode;
     }
-
-    // TODO: 3.1.2020. make append method
 
     @Override
     public String toString() {

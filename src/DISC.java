@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.Arrays;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -233,7 +234,7 @@ public class DISC {
      */
     public void formatDisc() {
         // TODO: 23.11.2019. change 401_00 to 4_000_000
-        for (int i = 0; i < 401_000; i++) {
+        for (int i = 0; i <= 406_500; i++) {
             try {
                 disk.writeInt(i+1);
                 disk.writeBoolean(false);
@@ -272,35 +273,6 @@ public class DISC {
     public static void boot() {
         superBlock = read();
         inodeBlock = read(superBlock);
-    }
-
-    // TODO: 24.9.2019. Add read of the iNode - and add iNode
-
-    public static void main(String[] args) {
-
-
-        DISC d = new DISC();
-//        d.formatDisc();
-//        SuperBlock superBlock = null;
-//        InodeBlock inodeBlock = null;
-////        System.out.println("Nakon boot\n--------------");
-////        Disk.boot(superBlock, inodeBlock);
-//        System.out.println(superBlock);
-//        System.out.println(inodeBlock);
-//        Block b = new Block();
-////        for (int i = 0; i < 350; i++) {
-////            Disk.read(i, b);
-////            System.out.println(i + " -> " + b);
-////        }
-//        superBlock = Disk.read();
-//
-//        inodeBlock = Disk.read(superBlock);
-//
-//        System.out.println(superBlock);
-//        System.out.println(inodeBlock);
-        d.boot();
-        System.out.println(superBlock);
-        System.out.println(inodeBlock);
-
+        inodeBlock.index = inodeBlock.number;
     }
 }

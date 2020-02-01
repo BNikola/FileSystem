@@ -12,6 +12,10 @@ public class FileSystem {
     public FileSystem() {
         DISC.boot();
         try {
+            Inode rootInode = DISC.inodeBlock.inodeList.get(0);
+            System.out.println(rootInode);
+            System.out.println(Arrays.toString(new Directory("root").convertToBytes()));
+            System.out.println(Arrays.toString(rootInode.readExents()));
             currentDirectory = Directory.convertFromBytes(DISC.inodeBlock.inodeList.get(0).readExents());
             currentInode = DISC.inodeBlock.inodeList.get(0);
         } catch (IOException | ClassNotFoundException e) {
@@ -374,6 +378,32 @@ public class FileSystem {
         }
     }
 
+    public boolean mv(String oldLocation, String newLocation) {
+        if (oldLocation.equals(newLocation)) {
+            return true;
+        }
+        if (cp(oldLocation, newLocation)) {
+            rm(oldLocation);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean rm(String oldLocation, String... mode) {
+        // TODO: 13.1.2020. implement
+        //  - find inode
+        //  - remove from list
+        //  - remove from dir
+        ArrayList<String> oldPath = new ArrayList<>(Arrays.asList(oldLocation.split("/")));
+        oldPath.remove(0);
+//        System.out.println(mode);
+        if (mode == null) {
+            System.out.println("ALO rodjace");
+        }
+        return false;
+    }
+
 
     /**
      * @param newFilePath
@@ -399,19 +429,24 @@ public class FileSystem {
             } else if (path.size() == 3) {
                 if (currentDirectory.fileNames.containsKey(path.get(1))) {
                     Integer index = currentDirectory.fileNames.get(path.get(1));
-                    Directory secondLevelDir = null;
-                    try {
-                        secondLevelDir = Directory.convertFromBytes(DISC.inodeBlock.inodeList.get(index).readExents());
-                    } catch (IOException | ClassNotFoundException e) {
-                        DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
-                    }
-                    System.out.println(secondLevelDir);
-                    if (secondLevelDir.fileNames.containsKey(path.get(2))) {
-                        System.out.println("ERR: File exists");
-                        return 1;
+                    Inode secondInode = DISC.inodeBlock.inodeList.get(index);
+                    if (secondInode.getFlags() != 0) {
+                        return -1;
                     } else {
-                        System.out.println("GOOD " + newFilePath);
-                        return 0;
+                        Directory secondLevelDir = null;
+                        try {
+                            secondLevelDir = Directory.convertFromBytes(secondInode.readExents());
+                        } catch (IOException | ClassNotFoundException e) {
+                            DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
+                        }
+                        System.out.println(secondLevelDir);
+                        if (secondLevelDir.fileNames.containsKey(path.get(2))) {
+                            System.out.println("ERR: File exists");
+                            return 1;
+                        } else {
+                            System.out.println("GOOD " + newFilePath);
+                            return 0;
+                        }
                     }
                 } else {
                     System.out.println("ERR: Directory " + path.get(1) + " does not exist");
@@ -502,9 +537,6 @@ public class FileSystem {
 //        return 1;   // return file descriptor
 //    }
 
-    public int rm (String fileName) {
-        return 1;
-    }
 
     public int cat(String path) {
         return 1; // return file descriptor
