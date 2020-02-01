@@ -1,105 +1,89 @@
 import java.io.IOException;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        FileSystem.disc.formatDisc();
+//        FileSystem.disc.formatDisc();
         FileSystem fs = new FileSystem();
 
-        System.out.println(DISC.inodeBlock);
-        System.out.println(DISC.superBlock);
-        fs.currentInode.showMeTheMoney();
-        System.out.println(fs.currentDirectory);
-//        fs.mkdir("root3");
-        fs.mkdir("/root/root3");
-        fs.mkdir("/root/testic123");
-        System.out.println(fs.currentDirectory);
-//        fs.currentInode.showMeTheMoney();
-        System.out.println(DISC.inodeBlock);
-        System.out.println(DISC.superBlock);
-
-//        System.out.println("-----\n");
-        fs.create("/root/test");
-//        System.out.println("-----\n");
-        fs.create("/root/root3");
-        fs.create("/root/root2");
-        fs.create("/root/testic123/ttt");
-//        fs.create("/root/root3/test2");
-//        System.out.println("-----TET@");
-        fs.create("/root/root3/test");
-//        fs.create("/root/root3/test123");
-//
-
-        fs.rename("/root/root3", "/root/root32");
-        fs.rename("/root/root3", "/root/root32");
-        fs.cp("/root/root2", "/root/root32/root2");
-
-        fs.cp("/root/testic123/ttt", "/root/root32/ttt");
-        fs.cp("/root/root32/ttt", "/root/ttt");
-
-
-        System.out.println(DISC.inodeBlock);
-        Inode inode = DISC.inodeBlock.getInodeList().get(1);
-        Inode rootDir = DISC.inodeBlock.getInodeList().get(0);
-        try {
-            Directory dir = Directory.convertFromBytes(inode.readExents());
-            Directory root = Directory.convertFromBytes(rootDir.readExents());
-            System.out.println(dir);
-            System.out.println(root);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        fs.ls();
-
-
+        Scanner scanner = new Scanner(System.in);
+        String command = "";
+        do {
+            command = scanner.nextLine();
+            if (command.startsWith("ls")) {
+                String [] arr = command.split(" ");
+                if (arr.length == 1) {
+                    fs.ls();
+                } else {
+                    fs.ls(arr[1]);
+                }
+            } else if (command.startsWith("mkdir")) {
+                String[] arr = command.split(" ");
+                if (arr.length == 2) {
+                    fs.mkdir(arr[1]);
+                } else {
+                    System.out.println("Not enough parameters form mkdir");
+                }
+            } else if (command.startsWith("create")) {
+                String[] arr = command.split(" ");
+                if (arr.length == 2) {
+                    fs.create(arr[1]);
+                } else {
+                    System.out.println("Not enough parameters form create");
+                }
+            } else if (command.startsWith("rm")) {
+                String[] arr = command.split(" ");
+                if (arr.length == 2) {
+                    fs.rm(arr[1]);
+                } else if (arr.length == 3) {
+                    fs.rm(arr[1], arr[2]);
+                } else {
+                    System.out.println("Not enough parameters form rm");
+                }
+            } else if (command.startsWith("cp")) {
+                String[] arr = command.split(" ");
+                if (arr.length == 3) {
+                    fs.cp(arr[1], arr[2]);
+                } else {
+                    System.out.println("Not enough parameters form cp");
+                }
+            } else if (command.startsWith("mv")) {
+                String[] arr = command.split(" ");
+                if (arr.length == 3) {
+                    fs.mv(arr[1], arr[2]);
+                } else {
+                    System.out.println("Not enough parameters form mv");
+                }
+            } else if (command.startsWith("rename")) {
+                String[] arr = command.split(" ");
+                if (arr.length == 3) {
+                    fs.rename(arr[1], arr[2]);
+                } else {
+                    System.out.println("Not enough parameters form rename");
+                }
+            } else if (command.startsWith("cat")) {
+                String[] arr = command.split(" ");
+                if (arr.length == 2) {
+                    fs.cat(arr[1]);
+                }
+            } else if (command.startsWith("echo")) {
+                String[] arr = command.split(" ");
+                if (arr.length == 3) {
+                    fs.echo(arr[1], arr[2]);
+                }
+            } else if (command.startsWith("put")) {
+                String[] arr = command.split(" ");
+                if (arr.length == 3) {
+                    fs.put(arr[1], arr[2]);
+                }
+            } else if (command.startsWith("get")) {
+                String[] arr = command.split(" ");
+                if (arr.length == 3) {
+                    fs.get(arr[1], arr[2]);
+                }
+            } else {
+                System.out.println("Unknown command");
+            }
+        } while (!command.equals("EXIT"));
     }
-//    public static void main(String[] args) {
-//        SuperBlock sb = new SuperBlock();
-////        InodeBlock ib = new InodeBlock();
-////        Inode in = new Inode();
-////        in.numberOfExtents = 1;
-////        in.pointers.add(new Extent(12,2));
-////        ib.inodeList.add(in);
-////        Disk d = new Disk();
-////        d.read(0, sb);
-////        System.out.println(sb);
-//        // format disk
-////        try (RandomAccessFile raf = new RandomAccessFile("DISK", "rw")) {
-////            for (int i = 0; i < 4_000_000; i++) {
-////                raf.writeInt(i + 1);
-////                raf.writeBoolean(false);
-////            }
-////        } catch (IOException e) {
-////            e.printStackTrace();
-////        }
-//        Disk d = new Disk();
-//        System.out.println("Start of free from sb" + SuperBlock.startOfFree);
-//        d.write(0, sb);
-//        Block block = new Block();
-//        d.read(0, block);
-//        System.out.println(block);
-//        d.read(12, block);
-//        System.out.println(block);
-//        d.read(SuperBlock.startOfFree + 1, block);
-//        System.out.println(SuperBlock.startOfFree);
-//        System.out.println(block);
-//
-//        FileSystem fs = new FileSystem();
-////        fs.put("test.txt");
-//        byte[] array = new byte[20];
-//        d.read(400_000, array);
-//        System.out.println(new String(array));
-//        Directory dir = new Directory("root");
-//        boolean first = dir.addFile("root", 1);
-//        boolean second = dir.addFile("root", 1);
-//        boolean third = dir.addFile("test", 2);
-//        System.out.println(first);
-//        System.out.println(second);
-//        System.out.println(third);
-//        System.out.println(dir);
-//
-//    }
 }
