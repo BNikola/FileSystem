@@ -40,7 +40,8 @@ public class FileSystem {
     public void ls(String... path) {
         if (path.length == 0 || path[0].equals("/root")) {
             System.out.println("/root");
-            currentDirectory.listFileNames().forEach(System.out::println);
+//            currentDirectory.listFileNames().forEach(System.out::println);
+            currentDirectory.list();
         } else {
             String lsPath = path[0];
             if (parsePath(lsPath) == 1) {
@@ -61,7 +62,8 @@ public class FileSystem {
                         }
 
                         if (dir != null) {
-                            dir.listFileNames().forEach(System.out::println);
+//                            dir.listFileNames().forEach(System.out::println);
+                            dir.list();
                         }
                     }
                 }
@@ -674,6 +676,40 @@ public class FileSystem {
             System.out.println("Source file does not exist");
         }
 
+    }
+
+    public void stat(String sourcePath) {
+        if (parsePath(sourcePath) == 1) {
+            System.out.println("==============================================");
+            System.out.println(sourcePath);
+            System.out.println("==============================================");
+            ArrayList<String> parsedPath = new ArrayList<>(Arrays.asList(sourcePath.split("/")));
+            parsedPath.remove(0);
+            if (parsedPath.size() == 2) {
+                Integer index = currentDirectory.fileNames.get(parsedPath.get(1));
+                Inode fileInode = DISC.inodeBlock.getInodeList().get(index);
+                System.out.println(fileInode);
+            } else {
+                int dirIndex = currentDirectory.fileNames.get(parsedPath.get(1));
+                Inode dirInode = DISC.inodeBlock.getInodeList().get(dirIndex);
+
+                Directory dir = null;
+
+                try {
+                    dir = Directory.convertFromBytes(dirInode.readExents());
+                } catch (IOException | ClassNotFoundException e) {
+                    DISC.LOGGER.log(Level.SEVERE, e.toString(), e);
+                }
+
+                if (dir != null) {
+                    int fileIndex = dir.fileNames.get(parsedPath.get(parsedPath.size() - 1));
+                    Inode fileInode = DISC.inodeBlock.getInodeList().get(fileIndex);
+
+                    System.out.println(fileInode);
+                }
+            }
+
+        }
     }
 
     public void get(String sourcePath, String destinationPath) {

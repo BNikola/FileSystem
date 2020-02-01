@@ -227,9 +227,9 @@ public class Inode implements Serializable {
         return "Inode{" +
                 "flags=" + flags +
 //                ", fileSize=" + fileSize +
-                ", numberOfExtents=" + pointers.size() +
-                ", pointers=" + pointers +
-                ", time=" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date(timestamp)) +
+                "\nnumberOfExtents=" + pointers.size() +
+                "\npointers=" + pointers +
+                "\ntime=" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date(timestamp)) +
                 '}';
     }
 }

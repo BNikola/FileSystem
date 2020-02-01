@@ -234,7 +234,7 @@ public class DISC {
      */
     public void formatDisc() {
         // TODO: 23.11.2019. change 401_00 to 4_000_000
-        for (int i = 0; i <= 406_500; i++) {
+        for (int i = 0; i <= 4_000_000; i++) {
             try {
                 disk.writeInt(i+1);
                 disk.writeBoolean(false);

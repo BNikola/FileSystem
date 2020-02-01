@@ -1,6 +1,8 @@
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Directory implements Serializable {
     public HashMap<String, Integer> fileNames = new HashMap<>();     // hash map: nameOfFile:inodeNumber
@@ -37,6 +39,18 @@ public class Directory implements Serializable {
 
     public ArrayList<String> listFileNames() {
         return new ArrayList<>(fileNames.keySet());
+    }
+
+    public void list() {
+        for (Map.Entry<String, Integer> entry : fileNames.entrySet()) {
+            if (DISC.inodeBlock.getInodeList().get(entry.getValue()).getFlags() == 0) {
+                System.out.print("d\t");
+            } else {
+                System.out.print("f\t");
+            }
+            System.out.print(new Date(DISC.inodeBlock.getInodeList().get(entry.getValue()).getTimestamp()) + "\t\t");
+            System.out.print(entry.getKey() + "\n");
+        }
     }
 
 

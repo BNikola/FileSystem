@@ -81,8 +81,15 @@ public class Main {
                 if (arr.length == 3) {
                     fs.get(arr[1], arr[2]);
                 }
+            } else if (command.startsWith("stat")) {
+                String[] arr = command.split(" ");
+                if (arr.length == 2) {
+                    fs.stat(arr[1]);
+                }
             } else {
-                System.out.println("Unknown command");
+                if (!command.equals("EXIT")) {
+                    System.out.println("Unknown command");
+                }
             }
         } while (!command.equals("EXIT"));
     }
